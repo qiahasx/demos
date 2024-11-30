@@ -51,23 +51,38 @@ Java_com_example_opengl_GLRender_draw(
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // 重置当前矩阵为单位矩阵
     glLoadIdentity();
+    // 启用顶点数组
+    glEnableClientState(GL_VERTEX_ARRAY);
+    // 启用颜色数组
+    glEnableClientState(GL_COLOR_ARRAY);
 
     // 定义一个 PointF 类型的数组，存储三个点的信息
     PointF points[] = {
             {-0.5, -0.5, -1, 1.0, 0,   0},
             {0.5,  -0.5, -1, 0,   1.0, 0},
-            {0,    0.5,  -1, 0,   0,   1.0},
+            {-0.5, -0.1, -1, 0, 0, 1.0},
+            {0.5,  -0.1, -1, 0, 0, 0},
     };
-    // 启用顶点数组
-    glEnableClientState(GL_VERTEX_ARRAY);
-    // 启用颜色数组
-    glEnableClientState(GL_COLOR_ARRAY);
     // 指定顶点数组的指针，每个顶点包含 3 个浮点数，步长为 PointF 的大小
     glVertexPointer(3, GL_FLOAT, sizeof(PointF), points);
     // 指定颜色数组的指针，从 points 数组的第一个元素的 r 分量开始，每个颜色包含 4 个浮点数，步长为 PointF 的大小
     glColorPointer(4, GL_FLOAT, sizeof(PointF), &points[0].r);
     // 绘制三角形，使用 3 个顶点
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    // 定义一个 PointF 类型的数组，存储三个点的信息
+    PointF points2[] = {
+            {-0.5, 0.5, -1, 1.0, 0,   0},
+            {0.5,  0.5, -1, 0,   1.0, 0},
+            {-0.5, 0.1, -1, 0,   0,   1.0},
+            {0.5,  0.1, -1, 0,   0,   0},
+    };
+    // 指定顶点数组的指针，每个顶点包含 3 个浮点数，步长为 PointF 的大小
+    glVertexPointer(3, GL_FLOAT, sizeof(PointF), points2);
+    // 指定颜色数组的指针，从 points2 数组的第一个元素的 r 分量开始，每个颜色包含 4 个浮点数，步长为 PointF 的大小
+    glColorPointer(4, GL_FLOAT, sizeof(PointF), &points2[0].r);
+    // 绘制三角形，使用 3 个顶点
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     // 禁用颜色数组
     glDisableClientState(GL_COLOR_ARRAY);
     // 禁用顶点数组
