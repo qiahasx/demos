@@ -4,7 +4,7 @@ import android.opengl.GLSurfaceView
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class CCGLRender : GLSurfaceView.Renderer {
+class GLRender : GLSurfaceView.Renderer {
     private external fun initOpenGL()
 
     private external fun draw()

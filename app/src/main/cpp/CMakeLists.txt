@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 project("opengl")
 add_library(${CMAKE_PROJECT_NAME} SHARED
-        CCGLRender.cpp
+        GLRender.cpp
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}

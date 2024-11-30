@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
             SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         )
         glsView = GLSurfaceView(this)
-        glsView.setRenderer(CCGLRender())
+        glsView.setRenderer(GLRender())
         setContentView(glsView)
     }
 
