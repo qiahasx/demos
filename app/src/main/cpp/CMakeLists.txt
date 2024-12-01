@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.22.1)
 project("opengl")
-
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 SET(SOURCE_GLM libary/libglm)
 
 INCLUDE_DIRECTORIES(${SOURCE_GLM}/include)

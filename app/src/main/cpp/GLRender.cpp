@@ -6,6 +6,11 @@
 #include <GLES2/gl2.h>
 #include <GLES/gl.h>
 #include "log.h"
+#include "glm/vec4.hpp"
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/gtx/transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 // 定义一个名为 PointF 的结构体，用于存储点的信息，包括坐标和颜色等属性
 struct PointF {
@@ -25,6 +30,11 @@ struct PointF {
     float a = 1.0;
 };
 
+struct Vertex {
+    glm::vec3 position;
+    glm::vec4 color;
+};
+
 // 以下是一个 JNI 导出函数，用于初始化 OpenGL 环境
 // env 是 JNI 环境指针，jobject 表示调用该函数的 Java 对象
 extern "C" JNIEXPORT void JNICALL
@@ -41,6 +51,7 @@ Java_com_example_opengl_GLRender_initOpenGL(
     glDepthFunc(GL_LEQUAL);
 }
 
+auto angle = 0.0f;
 // 以下是一个 JNI 导出函数，用于执行绘制操作
 // env 是 JNI 环境指针，jobject 表示调用该函数的 Java 对象
 extern "C" JNIEXPORT void JNICALL
@@ -49,35 +60,74 @@ Java_com_example_opengl_GLRender_draw(
         jobject /* this */) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+    // 设置矩阵模式为投影矩阵
+    glMatrixMode(GL_PROJECTION);
+    // 再次重置投影矩阵为单位矩阵
+    glLoadIdentity();
+    // 启用背面剔除，只绘制正面
+    glCullFace(GL_BACK);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
-    PointF points[] = {
-            {-0.5, -0.5, -1, 1.0, 0,   0},
-            {0.5,  -0.5, -1, 0,   1.0, 0},
-            {0.5, -0.1, -1, 0, 0, 0},
-            {-0.5, -0.1, -1, 0, 0, 1.0},
+    Vertex cubeVertices[] = {
+            {{-0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+
+            {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+
+            {{-0.5f, -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+
+            {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+
+            {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  0.5f,  -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  -0.5f, -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}}
     };
-    glVertexPointer(3, GL_FLOAT, sizeof(PointF), points);
-    glColorPointer(4, GL_FLOAT, sizeof(PointF), &points[0].r);
-    // 设置线宽为 3
-    glLineWidth(3);
-    // 启用线平滑
-    glEnable(GL_LINE_SMOOTH);
-    // 设置线平滑的提示为最佳质量
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glVertexPointer(3, GL_FLOAT, sizeof(Vertex), cubeVertices);
+    glColorPointer(4, GL_FLOAT, sizeof(Vertex), &cubeVertices[0].color);
 
-    // 绘制一个闭合的线环，从数组的第 0 个元素开始，绘制 4 个顶点
-    glDrawArrays(GL_LINE_LOOP, 0, 4);
-
-    // 启用点平滑
-    glEnable(GL_POINT_SMOOTH);
-    // 设置点平滑的提示为最佳质量
-    glHint(GL_POINT_SMOOTH, GL_NICEST);
-    // 设置点的大小为 24
-    glPointSize(24);
-    // 绘制点，从数组的第 0 个元素开始，绘制 4 个顶点
-    glDrawArrays(GL_POINTS, 0, 4);
-
+    angle += 0.01;
+    glm::mat4x4 cubeMat;
+    // 定义一个平移矩阵，将物体沿 (0.0f, 0.3f, 0.5f) 平移
+    glm::mat4x4 cubeTransMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.3f, 0.5f));
+    // 定义一个旋转矩阵，绕 (1.0f, 1.0f, 1.0f) 轴旋转 angle 角度
+    glm::mat4x4 cubeRotMat = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(1.0f, 1.0f, 1.0f));
+    // 定义一个缩放矩阵，将物体在三个维度上缩放为 0.3 倍
+    glm::mat4x4 cubeScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 0.3f, 0.3f));
+    // 组合平移、旋转和缩放矩阵
+    cubeMat = cubeTransMat * cubeRotMat * cubeScaleMat;
+    // 加载组合后的矩阵
+    glLoadMatrixf(glm::value_ptr(cubeMat));
+    // 绘制三角形，从数组的第 0 个元素开始，绘制 36 个顶点
+    glDrawArrays(GL_TRIANGLES, 0, 36);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
@@ -98,9 +148,5 @@ Java_com_example_opengl_GLRender_resize(
     // 重置投影矩阵为单位矩阵
     glLoadIdentity();
     // 设置正交投影矩阵，定义可见区域的范围
-    glOrthof(-1, 1, -1, 1, 0.1, 1000.0);
-    // 将矩阵模式设置为模型视图矩阵
-    glMatrixMode(GL_MODELVIEW);
-    // 重置模型视图矩阵为单位矩阵
-    glLoadIdentity();
+    glOrthof(-1, 1, -1, 1, -0.1, 1000.0);
 }
