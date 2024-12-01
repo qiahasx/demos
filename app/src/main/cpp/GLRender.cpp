@@ -47,45 +47,38 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_opengl_GLRender_draw(
         JNIEnv *env,
         jobject /* this */) {
-    // 清除颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // 重置当前矩阵为单位矩阵
     glLoadIdentity();
-    // 启用顶点数组
     glEnableClientState(GL_VERTEX_ARRAY);
-    // 启用颜色数组
     glEnableClientState(GL_COLOR_ARRAY);
-
-    // 定义一个 PointF 类型的数组，存储三个点的信息
     PointF points[] = {
             {-0.5, -0.5, -1, 1.0, 0,   0},
             {0.5,  -0.5, -1, 0,   1.0, 0},
+            {0.5, -0.1, -1, 0, 0, 0},
             {-0.5, -0.1, -1, 0, 0, 1.0},
-            {0.5,  -0.1, -1, 0, 0, 0},
     };
-    // 指定顶点数组的指针，每个顶点包含 3 个浮点数，步长为 PointF 的大小
     glVertexPointer(3, GL_FLOAT, sizeof(PointF), points);
-    // 指定颜色数组的指针，从 points 数组的第一个元素的 r 分量开始，每个颜色包含 4 个浮点数，步长为 PointF 的大小
     glColorPointer(4, GL_FLOAT, sizeof(PointF), &points[0].r);
-    // 绘制三角形，使用 3 个顶点
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    // 设置线宽为 3
+    glLineWidth(3);
+    // 启用线平滑
+    glEnable(GL_LINE_SMOOTH);
+    // 设置线平滑的提示为最佳质量
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-    // 定义一个 PointF 类型的数组，存储三个点的信息
-    PointF points2[] = {
-            {-0.5, 0.5, -1, 1.0, 0,   0},
-            {0.5,  0.5, -1, 0,   1.0, 0},
-            {-0.5, 0.1, -1, 0,   0,   1.0},
-            {0.5,  0.1, -1, 0,   0,   0},
-    };
-    // 指定顶点数组的指针，每个顶点包含 3 个浮点数，步长为 PointF 的大小
-    glVertexPointer(3, GL_FLOAT, sizeof(PointF), points2);
-    // 指定颜色数组的指针，从 points2 数组的第一个元素的 r 分量开始，每个颜色包含 4 个浮点数，步长为 PointF 的大小
-    glColorPointer(4, GL_FLOAT, sizeof(PointF), &points2[0].r);
-    // 绘制三角形，使用 3 个顶点
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    // 禁用颜色数组
+    // 绘制一个闭合的线环，从数组的第 0 个元素开始，绘制 4 个顶点
+    glDrawArrays(GL_LINE_LOOP, 0, 4);
+
+    // 启用点平滑
+    glEnable(GL_POINT_SMOOTH);
+    // 设置点平滑的提示为最佳质量
+    glHint(GL_POINT_SMOOTH, GL_NICEST);
+    // 设置点的大小为 24
+    glPointSize(24);
+    // 绘制点，从数组的第 0 个元素开始，绘制 4 个顶点
+    glDrawArrays(GL_POINTS, 0, 4);
+
     glDisableClientState(GL_COLOR_ARRAY);
-    // 禁用顶点数组
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
