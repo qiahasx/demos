@@ -12,23 +12,6 @@
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-// 定义一个名为 PointF 的结构体，用于存储点的信息，包括坐标和颜色等属性
-struct PointF {
-    // 点的 x 坐标
-    float x{};
-    // 点的 y 坐标
-    float y{};
-    // 点的 z 坐标
-    float z{};
-    // 点的红色分量（颜色）
-    float r{};
-    // 点的绿色分量（颜色）
-    float g{};
-    // 点的蓝色分量（颜色）
-    float b{};
-    // 点的 alpha 分量（透明度），默认为 1.0
-    float a = 1.0;
-};
 
 struct Vertex {
     glm::vec3 position;
