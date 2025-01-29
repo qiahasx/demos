@@ -14,14 +14,13 @@
 
 struct Vertex {
     glm::vec3 position;
-    glm::vec4 color;
     glm::vec2 texCoord;
 };
 
 class ImageRender {
 public:
     ImageRender() : textureId(0) {
-        glClearColor(1.0, 1.0, 1.0, 1.0);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
         glClearDepthf(1.0);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -48,21 +47,18 @@ public:
         glBindTexture(GL_TEXTURE_2D, textureId);
         // 设置顶点、颜色和纹理坐标
         Vertex points[] = {
-                {{-1, -1, 0}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}, // 左下角
-                {{1,  -1, 0}, {1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // 右下角
-                {{1,  1,  0}, {1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // 右上角
-                {{-1, 1,  0}, {1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}} // 左上角
+                {{-1, -1, 0}, {0.0f, 1.0f}}, // 左下角
+                {{1,  -1, 0}, {1.0f, 1.0f}}, // 右下角
+                {{1,  1,  0}, {1.0f, 0.0f}}, // 右上角
+                {{-1, 1,  0}, {0.0f, 0.0f}} // 左上角
         };
         glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY); // 启用纹理坐标数组
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
         glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &points[0].position);
-        glColorPointer(4, GL_FLOAT, sizeof(Vertex), &points[0].color);
         glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &points[0].texCoord); // 使用纹理坐标
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY); // 禁用纹理坐标数组
-        glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
 
@@ -90,34 +86,32 @@ private:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA,
                      GL_UNSIGNED_BYTE, image->getData());
-        if (glGetError() != GL_NO_ERROR) {
-            debug("Error while creating texture.");
-        }
         return id;
     }
 };
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_opengl_ImageGlRender_setImagePath(JNIEnv *env, jobject thiz, jstring path,
+Java_com_example_opengl_render_ImageGlRender_setImagePath(JNIEnv *env, jobject thiz, jstring path,
                                                    jlong renderPtr) {
     reinterpret_cast<ImageRender *>(renderPtr)->setImagePath(env->GetStringUTFChars(path, nullptr));
 }
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_opengl_ImageGlRender_draw(JNIEnv *env, jobject thiz, jlong renderPtr) {
+Java_com_example_opengl_render_ImageGlRender_draw(JNIEnv *env, jobject thiz, jlong renderPtr) {
     reinterpret_cast<ImageRender *>(renderPtr)->draw();
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_opengl_ImageGlRender_resize(JNIEnv *env, jobject thiz, jint width, jint height,
+Java_com_example_opengl_render_ImageGlRender_resize(JNIEnv *env, jobject thiz, jint width,
+                                                    jint height,
                                              jlong renderPtr) {
     reinterpret_cast<ImageRender *>(renderPtr)->resize(width, height);
 }
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_com_example_opengl_ImageGlRender_createImageRender(JNIEnv *env, jobject thiz) {
+Java_com_example_opengl_render_ImageGlRender_createImageRender(JNIEnv *env, jobject thiz) {
     auto *render = new ImageRender();
     return (jlong) render;
 }

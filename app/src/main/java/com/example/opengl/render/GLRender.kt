@@ -1,4 +1,4 @@
-package com.example.opengl
+package com.example.opengl.render
 
 import android.opengl.GLSurfaceView
 import javax.microedition.khronos.egl.EGLConfig

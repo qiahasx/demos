@@ -21,7 +21,7 @@ struct Vertex {
 // 以下是一个 JNI 导出函数，用于初始化 OpenGL 环境
 // env 是 JNI 环境指针，jobject 表示调用该函数的 Java 对象
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_opengl_GLRender_initOpenGL(
+Java_com_example_opengl_render_GLRender_initOpenGL(
         JNIEnv *env,
         jobject /* this */) {
     // 设置清除颜色为白色（RGBA）
@@ -38,7 +38,7 @@ auto angle = 0.0f;
 // 以下是一个 JNI 导出函数，用于执行绘制操作
 // env 是 JNI 环境指针，jobject 表示调用该函数的 Java 对象
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_opengl_GLRender_draw(
+Java_com_example_opengl_render_GLRender_draw(
         JNIEnv *env,
         jobject /* this */) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -55,44 +55,44 @@ Java_com_example_opengl_GLRender_draw(
             {{-0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
             {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
             {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
-            {{-0.5f, 0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
             {{-0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
             {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
 
             {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
             {{0.5f,  -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
             {{0.5f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
             {{0.5f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
             {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
 
             {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
             {{0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
             {{0.5f,  0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
             {{-0.5f, 0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-            {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
-            {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
 
             {{-0.5f, -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
             {{0.5f,  -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
             {{0.5f,  -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
             {{-0.5f, -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
-            {{0.5f,  -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{0.5f,  -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
 
             {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
             {{-0.5f, 0.5f,  0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
             {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
             {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
-            {{-0.5f, 0.5f,  0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
 
             {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
             {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
             {{0.5f,  0.5f,  -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{0.5f,  -0.5f, -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
             {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
-            {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}}
+            {{0.5f,  0.5f,  -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+            {{0.5f,  -0.5f, -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}}
     };
     glVertexPointer(3, GL_FLOAT, sizeof(Vertex), cubeVertices);
     glColorPointer(4, GL_FLOAT, sizeof(Vertex), &cubeVertices[0].color);
@@ -119,7 +119,7 @@ Java_com_example_opengl_GLRender_draw(
 // env 是 JNI 环境指针，jobject 表示调用该函数的 Java 对象
 // width 和 height 是从 Java 层传递过来的新的宽度和高度
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_opengl_GLRender_resize(
+Java_com_example_opengl_render_GLRender_resize(
         JNIEnv *env,
         jobject /* this */,
         jint width,
