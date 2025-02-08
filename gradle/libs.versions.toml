@@ -10,6 +10,7 @@ material = "1.10.0"
 constraintlayout = "2.1.4"
 activityCompose = "1.9.3"
 composeBom = "2024.04.01"
+mmkvVersion = "2.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +25,7 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+tencent-mmkv = { module = "com.tencent:mmkv", version.ref = "mmkvVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
