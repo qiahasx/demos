@@ -5,21 +5,35 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class ShaderRender : GLSurfaceView.Renderer {
-    private external fun initOpenGL()
+    private external fun initOpenGL(): Long
 
-    private external fun draw()
+    private external fun draw(pRender: Long)
 
-    private external fun resize(width: Int, height: Int)
+    private external fun resize(pRender: Long, width: Int, height: Int)
+
+    private external fun rotateAroundXAxis(pRender: Long, angle: Float)
+
+    private external fun rotateAroundYAxis(pRender: Long, angle: Float)
+
+    private external fun rotate(pRender: Long, xAngle: Float, yAngle: Float)
+
+    private var pShader: Long = 0
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        initOpenGL()
+        pShader = initOpenGL()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        resize(width, height)
+        resize(pShader, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        draw()
+        draw(pShader)
+    }
+
+    fun rotate(x: Float, y: Float) {
+//        rotateAroundYAxis(pShader, -x)
+//        rotateAroundXAxis(pShader, -y)
+        rotate(pShader, -x, -y)
     }
 }

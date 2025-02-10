@@ -10,14 +10,14 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "shader.h"
 #include <EGL/egl.h>
 
 struct Vertex {
     glm::vec3 position;
     glm::vec4 color;
 };
-const char *vertexShaderSrc = R"(
-#version 300 es
+const char *vertexShaderSrc = R"(#version 300 es
 precision mediump float;
 
 layout(location = 0) in vec3 aPosition;  // 顶点位置属性（location=0）
@@ -31,8 +31,7 @@ void main() {
     vColor = aColor;                    // 直接传递顶点颜色
 }
 )";
-const char *fragmentShaderSrc = R"(
-#version 300 es
+const char *fragmentShaderSrc = R"(#version 300 es
 precision mediump float;
 
 in vec4 vColor;            // 接收顶点着色器的颜色
@@ -42,45 +41,38 @@ void main() {
     fragColor = vColor;    // 直接使用顶点颜色
 }
 )";
-
-// 着色器程序和矩阵句柄
-GLuint shaderProgram;
-GLuint uMVPMatrixLocation;
-EGLDisplay display;
-
 // 顶点和索引数据
 Vertex cubeVertices[] = {
-        {{-0.5f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
-        {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
-        {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+        {{-0.3f, -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+        {{0.3f,  -0.5f, 0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+        {{0.3f,  0.5f,  0.5f},  {1.0f, 0.0f, 0.0f, 1.0f}},
+        {{-0.3f, 0.5f,  0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
 
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-        {{0.5f,  -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-        {{0.5f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-        {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+        {{-0.3f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+        {{0.3f,  -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+        {{0.3f,  0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+        {{-0.3f, 0.5f,  -0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}},
 
-        {{-0.5f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
-        {{0.5f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
-        {{0.5f,  0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-        {{-0.5f, 0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+        {{-0.3f, 0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+        {{0.3f,  0.5f,  0.5f},  {0.0f, 0.0f, 1.0f, 1.0f}},
+        {{0.3f,  0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+        {{-0.3f, 0.5f,  -0.5f}, {0.0f, 0.0f, 1.0f, 1.0f}},
 
-        {{-0.5f, -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
-        {{0.5f,  -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
-        {{0.5f,  -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+        {{-0.3f, -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+        {{0.3f,  -0.5f, 0.5f},  {1.0f, 1.0f, 0.0f, 1.0f}},
+        {{0.3f,  -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
+        {{-0.3f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f, 1.0f}},
 
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
-        {{-0.5f, 0.5f,  0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
-        {{-0.5f, 0.5f,  -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+        {{-0.3f, -0.5f, 0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+        {{-0.3f, 0.5f,  0.5f},  {0.0f, 1.0f, 1.0f, 1.0f}},
+        {{-0.3f, 0.5f,  -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
+        {{-0.3f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f, 1.0f}},
 
-        {{0.5f,  -0.5f, 0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
-        {{0.5f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
-        {{0.5f,  0.5f,  -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
-        {{0.5f,  -0.5f, -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}}
+        {{0.3f,  -0.5f, 0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
+        {{0.3f,  0.5f,  0.5f},  {1.0f, 0.0f, 1.0f, 1.0f}},
+        {{0.3f,  0.5f,  -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}},
+        {{0.3f,  -0.5f, -0.5f}, {1.0f, 0.0f, 1.0f, 1.0f}}
 };
-
 GLushort cubeIndices[] = {
         0, 1, 2, 0, 2, 3,
         4, 5, 6, 4, 6, 7,
@@ -89,134 +81,136 @@ GLushort cubeIndices[] = {
         16, 17, 18, 16, 18, 19,
         20, 21, 22, 20, 22, 23,
 };
-// VBO/EBO/VAO 句柄
-GLuint vao, vbo, ebo;
 
-GLuint compileShader(GLenum shaderType, const char *shaderSource) {
-    GLuint shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, &shaderSource, nullptr);
-    glCompileShader(shader);
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-        debug("Shader compilation failed: %s", infoLog);
+class ShaderRender {
+public:
+    ShaderRender() {
+        shaderProgram = createShaderProgram(vertexShaderSrc, fragmentShaderSrc);
+        uMVPMatrixLocation = glGetUniformLocation(shaderProgram, "uMVPMatrix");
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+        glGenBuffers(1, &ebo);
+        glBindVertexArray(vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) nullptr);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                              (void *) offsetof(Vertex, color));
+        glEnableVertexAttribArray(1);
+
+        glBindVertexArray(0);
+
+        glClearColor(1.0, 1.0, 1.0, 1.0);
+        glClearDepthf(1.0);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+
+        view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f),
+                           glm::vec3(0.0f, 1.0f, 0.0f));
     }
-    return shader;
-}
 
-GLuint createShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource) {
-    debug("111");
-    GLuint program = glCreateProgram();
-    debug("222");
-    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
-    debug("333");
-    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
-    debug("444");
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-    debug("555");
-    // 检查链接错误
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetProgramInfoLog(program, 512, nullptr, infoLog);
-        debug("Program linking failed: %s", infoLog);
+    void draw() {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+        mvp = projection * view * model;
+        glUniformMatrix4fv(uMVPMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLushort), GL_UNSIGNED_SHORT,
+                       nullptr);
+        glBindVertexArray(0);
     }
-    return program;
-}
 
-extern "C" JNIEXPORT void JNICALL
+    void resize(int w, int h) {
+        width = w;
+        height = h;
+        aspect = (float) width / (float) height;
+        glViewport(0, 0, width, height);
+        projection = glm::perspective(glm::radians(45.0f), aspect, 1.0f, 100.0f);
+    }
+
+    void rotateAroundYAxis(float angle) {
+        model *= glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    void rotateAroundXAxis(float angle) {
+        model *= glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+    void rotate(float xAngle, float yAngle) {
+        model *= glm::rotate(glm::mat4(1.0f), glm::radians(xAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+        model *= glm::rotate(glm::mat4(1.0f), glm::radians(yAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
+private:
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view;
+    glm::mat4 projection;
+    glm::mat4 mvp;
+    float aspect = 1.0f;
+    int width, height;
+    GLuint vao{}, vbo{}, ebo{};
+    GLuint shaderProgram;
+    GLuint uMVPMatrixLocation;
+};
+
+extern "C" JNIEXPORT jlong JNICALL
 Java_com_example_opengl_render_ShaderRender_initOpenGL(
         JNIEnv *env,
         jobject /* this */) {
-    const EGLint attrib_list[] = {
-            // this specifically requests an Open GL ES 2 renderer
-            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-            // (ommiting other configs regarding the color channels etc...
-            EGL_NONE
-    };
-
-    EGLConfig config;
-    EGLint num_configs;
-    eglChooseConfig(display, attrib_list, &config, 1, &num_configs);
-
-    const EGLint context_attrib_list[] = {
-            // request a context using Open GL ES 2.0
-            EGL_CONTEXT_CLIENT_VERSION, 2,
-            EGL_NONE
-    };
-    EGLContext context = eglCreateContext(display, config, nullptr, context_attrib_list);
-    const char *version = (const char *) glGetString(GL_VERSION);
-    debug("OpenGL version: %s", version);
-    debug("1");
-    shaderProgram = createShaderProgram(vertexShaderSrc, fragmentShaderSrc);
-    debug("2");
-    uMVPMatrixLocation = glGetUniformLocation(shaderProgram, "uMVPMatrix");
-    debug("3");
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
-    debug("4");
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                          (void *) offsetof(Vertex, color));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-    debug("5");
-
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glClearDepthf(1.0);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    auto *pRender = new ShaderRender();
+    return (jlong) pRender;
 }
 
 auto angle1 = 0.0f;
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_opengl_render_ShaderRender_draw(
         JNIEnv *env,
-        jobject /* this */) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    debug("6");
-
-    glUseProgram(shaderProgram);
-    debug("7");
-    angle1 += 1;
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(angle1),
-                                  glm::vec3(1.0f, 1.0f, 1.0f));
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
-    glm::mat4 mvp = projection * view * model;
-    debug("8");
-    glUniformMatrix4fv(uMVPMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-    debug("9");
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLushort), GL_UNSIGNED_SHORT,
-                   nullptr);
-    glBindVertexArray(0);
-    debug("10");
+        jobject /* this */,
+        jlong pRender) {
+    reinterpret_cast<ShaderRender *>(pRender)->draw();
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_opengl_render_ShaderRender_resize(
         JNIEnv *env,
         jobject /* this */,
+        jlong pRender,
         jint width,
         jint height) {
-    glViewport(0, 0, width, height);
+    reinterpret_cast<ShaderRender *>(pRender)->resize(width, height);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_opengl_render_ShaderRender_rotateAroundYAxis(
+        JNIEnv *env,
+        jobject /* this */,
+        jlong pRender,
+        jfloat angle) {
+    reinterpret_cast<ShaderRender *>(pRender)->rotateAroundYAxis(angle);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_opengl_render_ShaderRender_rotateAroundXAxis(
+        JNIEnv *env,
+        jobject /* this */,
+        jlong pRender,
+        jfloat angle) {
+    reinterpret_cast<ShaderRender *>(pRender)->rotateAroundXAxis(angle);
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_opengl_render_ShaderRender_rotate(
+        JNIEnv *env,
+        jobject /* this */,
+        jlong pRender,
+        jfloat xAngle,
+        jfloat yAngle) {
+    reinterpret_cast<ShaderRender *>(pRender)->rotate(xAngle, yAngle);
 }

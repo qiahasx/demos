@@ -8,16 +8,15 @@ SET(SOURCE_STB_IMAGE libary/libstbImage)
 INCLUDE_DIRECTORIES(${SOURCE_GLM}/include)
 INCLUDE_DIRECTORIES(${SOURCE_STB_IMAGE}/include)
 add_library(${CMAKE_PROJECT_NAME} SHARED
-        #        GLRender.cpp
+        GLRender.cpp
         ShaderRender.cpp
-        #        ImageRender.cpp
+        ImageRender.cpp
         Image.h
         log.h
 )
 target_link_libraries(${CMAKE_PROJECT_NAME}
-        #        -lGLESv1_CM
-        #        -lGLESv2
+        -lGLESv1_CM
+        -lGLESv2
         -lGLESv3
-
         -lEGL
         log)
