@@ -14,7 +14,7 @@ import kotlin.math.abs
 
 class CubeActivity : ComponentActivity() {
     private val render = ShaderRender()
-    private val dp by lazy { resources.displayMetrics.density.also { debug("dp: $it") } }
+    private val dp by lazy { resources.displayMetrics.density * 2.5f }
     private var lastX = 0f
     private var lastY = 0f
 

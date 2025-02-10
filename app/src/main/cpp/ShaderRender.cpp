@@ -145,8 +145,10 @@ public:
     }
 
     void rotate(float xAngle, float yAngle) {
-        model *= glm::rotate(glm::mat4(1.0f), glm::radians(xAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-        model *= glm::rotate(glm::mat4(1.0f), glm::radians(yAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::quat qx = glm::angleAxis(glm::radians(xAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::quat qy = glm::angleAxis(glm::radians(yAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::quat q = qx * qy;
+        model = glm::mat4_cast(q) * model;
     }
 
 private:
