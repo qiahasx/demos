@@ -1,6 +1,8 @@
 package com.example.opengl
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,6 +37,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val glEsVersion = activityManager.deviceConfigurationInfo.glEsVersion
+        debug("glEsVersion: $glEsVersion")
         enableEdgeToEdge()
         setContent {
             Scaffold {

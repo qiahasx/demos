@@ -6,7 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import com.example.opengl.render.GLRender
+import com.example.opengl.render.ShaderRender
 
 class CubeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,7 +16,8 @@ class CubeActivity : ComponentActivity() {
             SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         )
         val glsView = GLSurfaceView(this)
-        glsView.setRenderer(GLRender())
+        glsView.setEGLContextClientVersion(3)
+        glsView.setRenderer(ShaderRender())
         setContentView(glsView)
     }
 }
