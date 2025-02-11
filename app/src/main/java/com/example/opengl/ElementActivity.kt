@@ -13,13 +13,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.opengl.ui.ButtonItem
+import com.example.opengl.ui.ButtonItemBean
 import com.example.opengl.ui.LocalDialog
 import com.example.opengl.ui.TextInfoDialog
-import com.example.opengl.ui.startActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class MainActivity : ComponentActivity() {
+class ElementActivity : ComponentActivity() {
     private val dialog = MutableStateFlow<Pair<String, String>?>(null)
+    private val buttonItemBeans = listOf<ButtonItemBean>(
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,20 +34,8 @@ class MainActivity : ComponentActivity() {
                             .padding(it)
                             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        item {
-                            ButtonItem(R.string.image_gl_render, R.string.image_gl_render_info) {
-                                startActivity(ImageActivity::class.java)
-                            }
-                        }
-                        item {
-                            ButtonItem(R.string.cube_gl_render, R.string.cube_gl_render_info) {
-                                startActivity(CubeActivity::class.java)
-                            }
-                        }
-                        item {
-                            ButtonItem(R.string.cube_gl_render, R.string.cube_gl_render_info) {
-                                startActivity(ElementActivity::class.java)
-                            }
+                        items(buttonItemBeans.size) {
+                            ButtonItem(buttonItemBeans[it])
                         }
                     }
                 }
@@ -54,9 +44,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    init {
-        System.loadLibrary("opengl")
     }
 }

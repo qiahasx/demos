@@ -1,11 +1,7 @@
 package com.example.opengl.ui
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -53,7 +49,7 @@ fun TextInfoDialog() {
                 )
             ) {
                 Text(
-                    text = getString(R.string.confirm),
+                    text = getStringC(R.string.confirm),
                     style = MaterialTheme.typography.labelLarge
                 )
             }
