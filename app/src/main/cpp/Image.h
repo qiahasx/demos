@@ -1,4 +1,5 @@
 #include <string.h>
+#include <GLES3/gl3.h>
 #include "stb_image.h"
 
 //
@@ -49,3 +50,30 @@ private:
     int height{};
     char *data = nullptr;
 };
+
+inline GLuint loadTexture(const char *fileName) {
+    Image *image = Image::CreateFormFile(fileName);
+    if (image == nullptr) {
+        debug("Failed to load image from file: %s", fileName);
+        return 0;
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // 设置纹理参数
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // 上传纹理数据
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, image->getData());
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    delete image; // 释放图像数据
+
+    return texture;
+}
