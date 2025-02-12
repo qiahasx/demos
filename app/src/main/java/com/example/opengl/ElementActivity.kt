@@ -1,48 +1,45 @@
 package com.example.opengl
 
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.opengl.GLSurfaceView
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import com.example.opengl.ui.ButtonItem
-import com.example.opengl.ui.ButtonItemBean
-import com.example.opengl.ui.LocalDialog
-import com.example.opengl.ui.TextInfoDialog
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.opengl.render.ElementRender
 
 class ElementActivity : ComponentActivity() {
-    private val dialog = MutableStateFlow<Pair<String, String>?>(null)
-    private val buttonItemBeans = listOf<ButtonItemBean>(
-    )
-
+    private lateinit var render: ElementRender
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            CompositionLocalProvider(LocalDialog provides dialog) {
-                Scaffold {
-                    LazyColumn(
-                        Modifier
-                            .padding(it)
-                            .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(buttonItemBeans.size) {
-                            ButtonItem(buttonItemBeans[it])
-                        }
-                    }
-                }
-                dialog.collectAsState().value?.let {
-                    TextInfoDialog()
-                }
-            }
+        enableEdgeToEdge(
+            SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+        )
+        val mode = intent.getIntExtra(ELEMENT_MODE, GL_POINTS)
+        render = ElementRender(mode)
+        val glsView = GLSurfaceView(this)
+        glsView.setEGLContextClientVersion(3)
+        glsView.setRenderer(render)
+        setContentView(glsView)
+    }
+
+    companion object {
+        const val GL_POINTS = 0x0000
+        const val GL_LINES = 0x0001
+        const val GL_LINE_LOOP = 0x0002
+        const val GL_LINE_STRIP = 0x0003
+        const val GL_TRIANGLES = 0x0004
+        const val GL_TRIANGLE_STRIP = 0x0005
+        const val GL_TRIANGLE_FAN = 0x0006
+        private const val ELEMENT_MODE = "key_Element_Mode"
+
+        fun Context.selectElement(mode: Int) {
+            val intent = Intent(this, ElementActivity::class.java)
+            intent.putExtra(ELEMENT_MODE, mode)
+            startActivity(intent)
         }
     }
 }

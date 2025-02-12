@@ -193,7 +193,6 @@ Java_com_example_opengl_render_ShaderRender_initOpenGL(
     return (jlong) pRender;
 }
 
-auto angle1 = 0.0f;
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_opengl_render_ShaderRender_draw(
         JNIEnv *env,

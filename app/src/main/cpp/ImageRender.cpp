@@ -14,7 +14,7 @@
 
 struct Vertex {
     glm::vec3 position;
-    glm::vec2 texCoord;
+    glm::vec2 color;
 };
 
 class ImageRender {
@@ -56,7 +56,7 @@ public:
         glEnableClientState(GL_TEXTURE_COORD_ARRAY); // 启用纹理坐标数组
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
         glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &points[0].position);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &points[0].texCoord); // 使用纹理坐标
+        glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &points[0].color); // 使用纹理坐标
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY); // 禁用纹理坐标数组
         glDisableClientState(GL_VERTEX_ARRAY);

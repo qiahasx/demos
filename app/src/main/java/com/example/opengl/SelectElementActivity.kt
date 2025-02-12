@@ -12,14 +12,38 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.opengl.ElementActivity.Companion.selectElement
 import com.example.opengl.ui.ButtonItem
+import com.example.opengl.ui.ButtonItemBean
 import com.example.opengl.ui.LocalDialog
 import com.example.opengl.ui.TextInfoDialog
-import com.example.opengl.ui.startActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class MainActivity : ComponentActivity() {
+class SelectElementActivity : ComponentActivity() {
     private val dialog = MutableStateFlow<Pair<String, String>?>(null)
+    private val buttonItemBeans = listOf(
+        ButtonItemBean(R.string.gl_points, R.string.gl_points_info) {
+            selectElement(ElementActivity.GL_POINTS)
+        },
+        ButtonItemBean(R.string.gl_lines, R.string.gl_lines_info) {
+            selectElement(ElementActivity.GL_LINES)
+        },
+        ButtonItemBean(R.string.gl_line_loop, R.string.gl_line_loop_info) {
+            selectElement(ElementActivity.GL_LINE_LOOP)
+        },
+        ButtonItemBean(R.string.gl_line_strip, R.string.gl_line_strip_info) {
+            selectElement(ElementActivity.GL_LINE_STRIP)
+        },
+        ButtonItemBean(R.string.gl_triangles, R.string.gl_triangles_info) {
+            selectElement(ElementActivity.GL_TRIANGLES)
+        },
+        ButtonItemBean(R.string.gl_triangle_strip, R.string.gl_triangle_strip_info) {
+            selectElement(ElementActivity.GL_TRIANGLE_STRIP)
+        },
+        ButtonItemBean(R.string.gl_triangle_fan, R.string.gl_triangle_fan_info) {
+            selectElement(ElementActivity.GL_TRIANGLE_FAN)
+        }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,20 +56,8 @@ class MainActivity : ComponentActivity() {
                             .padding(it)
                             .fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        item {
-                            ButtonItem(R.string.image_gl_render, R.string.image_gl_render_info) {
-                                startActivity(ImageActivity::class.java)
-                            }
-                        }
-                        item {
-                            ButtonItem(R.string.cube_gl_render, R.string.cube_gl_render_info) {
-                                startActivity(CubeActivity::class.java)
-                            }
-                        }
-                        item {
-                            ButtonItem(R.string.element_gl_render, R.string.element_gl_render_info) {
-                                startActivity(SelectElementActivity::class.java)
-                            }
+                        items(buttonItemBeans.size) {
+                            ButtonItem(buttonItemBeans[it])
                         }
                     }
                 }
@@ -54,9 +66,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    init {
-        System.loadLibrary("opengl")
     }
 }
