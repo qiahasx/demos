@@ -2,21 +2,10 @@
 #include <GLES3/gl3.h>
 #include "stb_image.h"
 
-//
-// Created by qiah on 2025/1/11.
-//
 class Image {
 public:
-    Image(int t, int w, int h, char *d) : type(t), width(w), height(h) {
-        auto size = w * h * 4;
-        if (size > 0 && d != nullptr) {
-            data = (char *) malloc(size);
-            memcpy(data, d, size);
-        }
-    }
-
     ~Image() {
-        free(data);
+        stbi_image_free(data);
     }
 
     static Image *CreateFormFile(const char *fileName) {
@@ -27,8 +16,7 @@ public:
         int width = 0;
         int height = 0;
         stbi_uc *imageData = stbi_load(fileName, &width, &height, &type, STBI_rgb_alpha);
-        auto result = new Image(type, width, height, (char *) imageData);
-        stbi_image_free(imageData);
+        auto result = new Image(type, width, height, imageData);
         return result;
     }
 
@@ -40,24 +28,34 @@ public:
         return height;
     }
 
-    char *getData() {
+    stbi_uc *getData() {
         return data;
     }
 
 private:
+    Image(int t, int w, int h, stbi_uc *d) : type(t), width(w), height(h) {
+        auto size = w * h * 4;
+        if (size > 0 && d != nullptr) {
+            data = d;
+        }
+    }
+
     int type{};
     int width{};
     int height{};
-    char *data = nullptr;
+    stbi_uc *data = nullptr;
 };
 
-inline GLuint loadTexture(const char *fileName) {
+inline GLuint loadTexture(const char *fileName, GLenum target) {
     Image *image = Image::CreateFormFile(fileName);
     if (image == nullptr) {
         debug("Failed to load image from file: %s", fileName);
         return 0;
     }
-
+    // 保存当前激活的纹理单元
+    GLint originalActiveTexture;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &originalActiveTexture);
+    glActiveTexture(target);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -73,6 +71,9 @@ inline GLuint loadTexture(const char *fileName) {
                  GL_UNSIGNED_BYTE, image->getData());
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glActiveTexture(originalActiveTexture);
     delete image; // 释放图像数据
 
     return texture;

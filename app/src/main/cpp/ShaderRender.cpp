@@ -85,12 +85,12 @@ GLushort cubeIndices[] = {
 };
 
 char *paths[] = {
+        "/1.png",
         "/2.png",
-        "/1.png",
-        "/1.png",
-        "/1.png",
-        "/1.png",
-        "/1.png"
+        "/3.png",
+        "/4.png",
+        "/5.png",
+        "/6.png"
 };
 
 class ShaderRender {
@@ -98,7 +98,7 @@ public:
     ShaderRender(const char *imagePath) {
         for (int i = 0; i < 6; ++i) {
             auto fullPath = std::string(imagePath).append(paths[i]);
-            textureIds[i] = loadTexture(fullPath.c_str());
+            loadTexture(fullPath.c_str(), GL_TEXTURE0 + i);
         }
         shaderProgram = createShaderProgram(vertexShaderSrc, fragmentShaderSrc);
         uMVPMatrixLocation = glGetUniformLocation(shaderProgram, "uMVPMatrix");
@@ -141,11 +141,7 @@ public:
         glUniformMatrix4fv(uMVPMatrixLocation, 1, GL_FALSE, glm::value_ptr(mvp));
         glBindVertexArray(vao);
         for (int i = 0; i < 6; ++i) {
-            // 激活纹理单元并绑定纹理
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, textureIds[i]);
-            glUniform1i(uTextureLocation, 0);
-
+            glUniform1i(uTextureLocation, i);
             // 绘制当前面（每面6个索引）
             auto *offset = (void *) (i * 6 * sizeof(GLushort));
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, offset);
@@ -174,7 +170,6 @@ private:
     glm::mat4 view;
     glm::mat4 projection;
     glm::mat4 mvp;
-    GLuint textureIds[6];
     float aspect = 1.0f;
     int width, height;
     GLuint vao{}, vbo{}, ebo{};

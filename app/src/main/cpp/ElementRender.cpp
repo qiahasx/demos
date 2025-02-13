@@ -46,6 +46,8 @@ Vertex vs[] = {
 
 void ElementRender::init() {
     shaderProgram = createShaderProgram(vsSrc, fsSrc);
+    glUseProgram(shaderProgram);
+
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
@@ -58,18 +60,18 @@ void ElementRender::init() {
                           (void *) offsetof(Vertex, color));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
+
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    glClearDepthf(1.0);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
     glLineWidth(10);
 }
 
 void ElementRender::draw() const {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(shaderProgram);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     glBindVertexArray(vao);
+
     glDrawArrays(mode, 0, sizeof(vs) / sizeof(Vertex));
+
     glBindVertexArray(0);
 }
 
@@ -103,4 +105,3 @@ Java_com_example_opengl_render_ElementRender_resize(
         jint height) {
     reinterpret_cast<ElementRender *>(pRender)->resize(width, height);
 }
-
