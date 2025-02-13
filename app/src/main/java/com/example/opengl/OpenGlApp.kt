@@ -14,12 +14,14 @@ class OpenGlApp : Application() {
 
     private fun copyAssets() {
         val assetManager = assets
-        val files = assetManager.list("image")
-        files?.forEach { fileName ->
-            assetManager.open("image/$fileName").use {
-                debug(getExternalFilesDir("image")?.absolutePath.toString())
-                val file = File(getExternalFilesDir("image"), fileName)
-                it.copyTo(file.outputStream())
+        val folders = listOf("image", "shader");
+        folders.forEach { name ->
+            val files = assetManager.list(name)
+            files?.forEach { fileName ->
+                assetManager.open("$name/$fileName").use {
+                    val file = File(getExternalFilesDir(name), fileName)
+                    it.copyTo(file.outputStream())
+                }
             }
         }
     }

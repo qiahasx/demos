@@ -10,6 +10,10 @@
 #endif //OPENGL_TRAINSTIONRENDER_H
 
 class TransitionRender : public Render {
+public:
+    TransitionRender() {
+        init();
+    }
     void init() override;
 
     void draw() override;

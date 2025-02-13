@@ -45,12 +45,12 @@ public:
         glBindBuffer(BufferType, m_id);
     }
 
-    static void unbind() {
+    void unbind() {
         glBindBuffer(BufferType, 0);
     }
 
     template<typename T>
-    void bufferData(const std::vector<T> &data, GLenum usage) {
+    void bufferData(const std::vector<T> &data, GLenum usage = GL_STATIC_DRAW) {
         static_assert(std::is_standard_layout_v<T>,
                       "Data must be standard layout");
         bind();
@@ -113,7 +113,7 @@ public:
         glBindVertexArray(m_id);
     }
 
-    static void unbind() {
+    void unbind() {
         glBindVertexArray(0);
     }
 
@@ -121,9 +121,8 @@ public:
     void setAttribute(GLuint index,
                       GLint size,
                       GLenum type,
-                      GLboolean normalized,
-                      GLsizei stride,
-                      size_t offset) {
+                      const void *pointer,
+                      GLboolean normalized = GL_FALSE) {
         static_assert(std::is_standard_layout_v<T>,
                       "Vertex attributes must use standard layout types");
         glEnableVertexAttribArray(index);
@@ -132,8 +131,8 @@ public:
                 size,
                 type,
                 normalized,
-                stride * sizeof(T),
-                reinterpret_cast<void *>(offset * sizeof(T))
+                sizeof(T),
+                pointer
         );
         checkGLError("Vertex attribute setup failed");
     }

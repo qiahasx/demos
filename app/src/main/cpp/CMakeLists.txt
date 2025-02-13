@@ -16,6 +16,9 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         ShaderRender.cpp
         ImageRender.cpp
         ElementRender.cpp
+        Render.cpp
+        Shader.cpp
+        TransitionRender.cpp
         stb.cpp
 )
 target_link_libraries(${CMAKE_PROJECT_NAME}

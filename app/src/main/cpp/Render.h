@@ -16,9 +16,9 @@ public:
 
     void resize(int w, int h);
 
-    void loadShaderFromFiles(char *vertName, char fragName);
+    void loadShaderFromFiles(char *vertName, char *fragName);
 
-    void addTextureFromFile(char *imageName, GLenum target);
+    GLint addTextureFromFile(char *imageName, GLenum target);
 
 protected:
     int width, height;

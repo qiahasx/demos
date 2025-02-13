@@ -47,6 +47,11 @@ class MainActivity : ComponentActivity() {
                                 startActivity(SelectElementActivity::class.java)
                             }
                         }
+                        item {
+                            ButtonItem(R.string.element_gl_render, R.string.element_gl_render_info) {
+                                startActivity(TransitionActivity::class.java)
+                            }
+                        }
                     }
                 }
                 dialog.collectAsState().value?.let {

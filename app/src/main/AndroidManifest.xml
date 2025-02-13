@@ -30,6 +30,7 @@
         <activity android:name=".CubeActivity" />
         <activity android:name=".SelectElementActivity" />
         <activity android:name=".ElementActivity" />
+        <activity android:name=".TransitionActivity" />
     </application>
 
 </manifest>

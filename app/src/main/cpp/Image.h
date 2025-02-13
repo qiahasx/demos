@@ -46,10 +46,10 @@ private:
     stbi_uc *data = nullptr;
 };
 
-inline GLuint loadTexture(const char *fileName, GLenum target) {
-    Image *image = Image::CreateFormFile(fileName);
-    if (image == nullptr) {
-        debug("Failed to load image from file: %s", fileName);
+inline GLuint loadTexture(const char *filePath, GLenum target) {
+    Image *image = Image::CreateFormFile(filePath);
+    if (image->getData() == nullptr) {
+        debug("Failed to load image from file: %s", filePath);
         return 0;
     }
     // 保存当前激活的纹理单元
