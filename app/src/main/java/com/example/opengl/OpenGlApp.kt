@@ -9,9 +9,7 @@ class OpenGlApp : Application() {
         super.onCreate()
         instance = this
         MMKV.initialize(this)
-        if (MMKV.defaultMMKV().getBoolean(KEY_FIRST_START, true)) {
-            copyAssets()
-        }
+        copyAssets()
     }
 
     private fun copyAssets() {
@@ -24,7 +22,6 @@ class OpenGlApp : Application() {
                 it.copyTo(file.outputStream())
             }
         }
-        MMKV.defaultMMKV().putBoolean(KEY_FIRST_START, false)
     }
 
     companion object {
