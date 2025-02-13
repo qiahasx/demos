@@ -14,7 +14,7 @@ public:
 
     virtual void draw() = 0;
 
-    void resize(int w, int h);
+    virtual void resize(int w, int h);
 
     void loadShaderFromFiles(char *vertName, char *fragName);
 

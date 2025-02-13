@@ -4,9 +4,9 @@ precision mediump float;
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexCoord;
 
-out vec2 uv;
+out vec2 fragCoord;
 
 void main() {
     gl_Position = vec4(aPosition, 1.0);
-    uv = aTexCoord;
+    fragCoord = aTexCoord;
 }

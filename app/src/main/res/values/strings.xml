@@ -21,4 +21,6 @@
     <string name="gl_triangle_strip_info">顶点按顺序组成连续的三角形，共享相邻边。\n 顶点序列 [v0, v1, v2, v3] 会渲染两个三角形：v0→v1→v2 和 v1→v2→v3。</string>
     <string name="gl_triangle_fan">GL_TRIANGLE_FAN</string>
     <string name="gl_triangle_fan_info">行为：所有三角形共享第一个顶点, 顶点序列 [v0, v1, v2, v3] 会渲染两个三角形：v0→v1→v2 和 v0→v2→v3。</string>
+    <string name="transition_render">transition_render</string>
+    <string name="transition_render_info">transition render info</string>
 </resources>

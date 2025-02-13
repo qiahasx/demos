@@ -13,7 +13,13 @@ struct Vertex {
 
 void TransitionRender::init() {
     loadShaderFromFiles("transition.vert", "transition.frag");
-    addTextureFromFile("transition_0.png", GL_TEXTURE0);
+    addTextureFromFile("3.png", GL_TEXTURE0);
+    addTextureFromFile("4.png", GL_TEXTURE1);
+    glUseProgram(shaderProgram);
+    progressLoc = glGetUniformLocation(shaderProgram, "progress");
+    glUniform1i(glGetUniformLocation(shaderProgram, "oldTexture"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "newTexture"), 1);
+    glUniform1i(glGetUniformLocation(shaderProgram, "mode"), mode);
     vao.bind();
     std::vector<Vertex> vs = {
             {{-1.0f, -1.0f, 1.0f}, {0.0f, 1.0f}},
@@ -30,19 +36,27 @@ void TransitionRender::init() {
     vbo.unbind();
     ebo.unbind();
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    glUseProgram(shaderProgram);
-    auto error = glGetError();
 }
 
 void TransitionRender::draw() {
     glClear(GL_COLOR_BUFFER_BIT);
+    progress = (progress + 0.003f);
+    if (progress >= 1.01f) {
+        if (progress >= 2.0f) {
+            progress = 0.0f;
+        }
+    } else {
+        glUniform1f(progressLoc, progress);
+    }
     vao.bind();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureIds[0]);
-    auto loc = glGetUniformLocation(shaderProgram, "uTexture");
-    glUniform1i(loc, 0);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     vao.unbind();
+}
+
+void TransitionRender::resize(int width, int height) {
+    glViewport(0, 0, width, height);
+    GLint location = glGetUniformLocation(shaderProgram, "iResolution");
+    glUniform2f(location, (GLfloat) width, (GLfloat) height);
 }
 
 extern "C" JNIEXPORT jlong JNICALL
@@ -50,7 +64,7 @@ Java_com_example_opengl_render_TransitionRender_initOpenGL(
         JNIEnv *env,
         jobject thiz,
         jint mode) {
-    auto *pRender = new TransitionRender();
+    auto *pRender = new TransitionRender(mode);
     return (jlong) pRender;
 }
 

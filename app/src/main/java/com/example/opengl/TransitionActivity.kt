@@ -1,5 +1,7 @@
 package com.example.opengl
 
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.opengl.GLSurfaceView
 import android.os.Bundle
@@ -20,11 +22,12 @@ class TransitionActivity : ComponentActivity() {
             SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
             SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
         )
+        val mode = intent.getIntExtra(TRANSITION_MODE, TransitionMode.SLIDE.ordinal)
         setContent {
             Scaffold { padding ->
                 AndroidView(
                     {
-                        val render = TransitionRender(0);
+                        val render = TransitionRender(mode);
                         val glsView = GLSurfaceView(this)
                         glsView.setEGLContextClientVersion(3)
                         glsView.setRenderer(render)
@@ -33,6 +36,21 @@ class TransitionActivity : ComponentActivity() {
                     Modifier.padding(padding)
                 )
             }
+        }
+    }
+
+    enum class TransitionMode {
+        SLIDE, LINEAR_WIPE, RADIAL_UNFOLD, FADE, WRAP, ZOOM_BLUR, BURN
+    }
+
+    companion object {
+        private const val TRANSITION_MODE = "KEY_TRANSITION_MODE"
+
+
+        fun Context.navTransition(mode: TransitionMode) {
+            val intent = Intent(this, TransitionActivity::class.java)
+            intent.putExtra(TRANSITION_MODE, mode.ordinal)
+            startActivity(intent)
         }
     }
 }

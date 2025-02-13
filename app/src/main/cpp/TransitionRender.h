@@ -11,10 +11,18 @@
 
 class TransitionRender : public Render {
 public:
-    TransitionRender() {
+    TransitionRender(int m) : mode(m) {
         init();
     }
     void init() override;
 
     void draw() override;
+
+    void resize(int width, int height) override;
+
+private:
+    GLint progressLoc{};
+    float progress = 0.0f;
+    int mode;
 };
+
