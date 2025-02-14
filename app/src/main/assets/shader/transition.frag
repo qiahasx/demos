@@ -4,7 +4,6 @@ precision mediump float;
 uniform sampler2D oldTexture;
 uniform sampler2D newTexture;
 uniform float progress;
-uniform vec2 iResolution;
 uniform int mode;
 
 in vec2 fragCoord;
@@ -70,7 +69,7 @@ void zoomBlur() {
 
 vec3 TextureSource(vec2 uv)
 {
-    return texture(oldTexture, uv).rgb;;
+    return texture(oldTexture, uv).rgb;
 }
 
 vec3 TextureTarget(vec2 uv)
@@ -140,81 +139,56 @@ void slide() {
 }
 
 void linearWipe() {
-    //    float angle = 45.0;        // 擦除角度（单位：度）
-    //    float smoothness = 0.02;   // 边缘羽化范围
-    //    vec2 uv = fragCoord;
-    //
-    //    // 计算标准化方向向量
-    //    vec2 direction = normalize(vec2(cos(radians(angle)), sin(radians(angle))));
-    //
-    //    // 计算梯度范围（适配任意角度）
-    //    float min_gradient = dot(vec2(0.0), direction);  // 左下角投影值
-    //    float max_gradient = dot(vec2(1.0), direction);  // 右上角投影值
-    //    float gradient = dot(uv, direction);
-    //
-    //    // 将梯度值映射到0-1范围
-    //    float normalized_gradient = (gradient - min_gradient) / (max_gradient - min_gradient);
-    //
-    //    // 计算遮罩（确保progress=1时完全覆盖）
-    //    float mask = smoothstep(
-    //    progress - smoothness,
-    //    progress + smoothness,
-    //    normalized_gradient * (1.0 + smoothness) // 扩展末端边界
-    //    );
-    //
-    //    fragColor = mix(
-    //    texture(newTexture, uv),
-    //    texture(oldTexture, uv),
-    //    clamp(mask, 0.0, 1.0)
-    //    );
-
-    float angle = 45.0;// 擦除角度（单位：度）
-    float smoothness = 0.02;// 边缘羽化
-    vec2 uv = fragCoord;
-    float gradient = dot(uv, vec2(cos(radians(angle)), sin(radians(angle))));
-    float mask = smoothstep(progress - smoothness, progress + smoothness, gradient);
-    fragColor = mix(texture(oldTexture, uv), texture(newTexture, uv), mask);
+    float angle = 45.0f;
+    float smoothness = 0.02f;
+    vec2 dir = vec2(cos(radians(angle)), sin(radians(angle)));
+    float gradient = dot(fragCoord, dir) / dot(vec2(1.0f), dir);
+    float mask = smoothstep(progress, progress + smoothness, gradient);
+    fragColor = mix(texture(newTexture, fragCoord), texture(oldTexture, fragCoord), mask);
 }
 
 void radialUnfold() {
-    vec2 center = vec2(0.5);// 中心点
-    float speed = 2.0;// 展开速度
-    vec2 uv = fragCoord;
-    float dist = length(uv - center);
-    float mask = smoothstep(progress - 0.1, progress, dist);
-    fragColor = mix(texture(newTexture, uv), texture(oldTexture, uv), mask);
+    vec2 center = vec2(0.5f);
+    float smoothness = 0.1f;
+    vec2 uv = (fragCoord - center) * (sqrt(2.0f) - smoothness);
+    float dist = length(uv);
+    float mask = smoothstep(progress - smoothness, progress, dist);
+    fragColor = mix(texture(newTexture, fragCoord), texture(oldTexture, fragCoord), mask);
 }
 
 void fade() {
-    float fadePower = 1.0f;
-    float scaleRatio = 0.2f;
-    vec2 uv = fragCoord;
-    float midProgress = 2.0 * abs(progress - 0.5);
-    float fadeIn = pow(progress, fadePower);
-    float fadeOut = pow(1.0 - progress, fadePower);
-    vec4 oldColor = texture(oldTexture, uv) * fadeOut;
-    vec4 newColor = texture(newTexture, uv) * fadeIn;
-    vec4 fallback = (progress < 0.5) ? texture(oldTexture, fragCoord) : texture(newTexture, fragCoord);
-    fragColor = (uv.x >=0.0 && uv.x <=1.0 && uv.y >=0.0 && uv.y <=1.0) ? (oldColor + newColor) : fallback;
+    float midProgress = 2.0f * abs(progress - 0.5f);
+    float fadeIn = progress;
+    float fadeOut = (1.0f - progress);
+    vec4 oldColor = texture(oldTexture, fragCoord) * fadeOut;
+    vec4 newColor = texture(newTexture, fragCoord) * fadeIn;
+    fragColor = oldColor + newColor;
 }
 
-void warpFade() {
-    float waveFreq = 8.0;// 波形频率
-    float waveAmp = 0.04;// 波形幅度
-    float distortSpeed = 2.0;// 扭曲速度
+void rotatingTilesTransition() {
+    vec2 center = vec2(0.5f);
+    float tileSize = 0.1f;
+    float maxRotation = radians(360.0);
+    float time = 0.4f;
 
-    vec2 uv = fragCoord;
+    float maxDist = length(center - vec2(tileSize / 2.0f));
+    vec2 tileID = floor(fragCoord / tileSize);
+    // 局部坐标
+    vec2 localUV = (fragCoord - tileID * tileSize) / tileSize;
 
-    // 动态扭曲
-    float wave = sin(uv.y * waveFreq + progress * distortSpeed * 10.0) * waveAmp;
-    vec2 warpedUV = uv + vec2(wave, 0.0);
+    float distToCenter = length((tileID + 0.5f) * tileSize - center);
+    float trigge = distToCenter * (1.0f - time) / maxDist;
+    float tileProgress = smoothstep(trigge, trigge + time, progress);
 
-    // 渐变混合
-    float fade = smoothstep(0.2, 0.8, progress);
-    vec4 oldColor = texture(oldTexture, uv) * (1.0 - fade);
-    vec4 newColor = texture(newTexture, uv) * fade;
+    float angle = maxRotation * tileProgress;
+    mat2 rotation = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    // 局部坐标
+    vec2 rotatedUV = rotation * (localUV - 0.5f) + 0.5f;
 
-    fragColor = oldColor + newColor;
+    vec4 oldColor = texture(oldTexture, tileID * tileSize + rotatedUV * tileSize);
+    vec4 newColor = texture(newTexture, tileID * tileSize + rotatedUV * tileSize);
+    float mixFactor = pow(tileProgress, 4.0);
+    fragColor = mix(oldColor, newColor, mixFactor);
 }
 
 void main() {
@@ -232,7 +206,7 @@ void main() {
         fade();
         break;
         case 4:
-        warpFade();
+        rotatingTilesTransition();
         break;
         case 5:
         zoomBlur();

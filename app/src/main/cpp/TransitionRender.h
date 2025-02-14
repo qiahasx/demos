@@ -22,7 +22,7 @@ public:
 
 private:
     GLint progressLoc{};
-    float progress = 0.0f;
+    float progress = -0.2f;
     int mode;
 };
 

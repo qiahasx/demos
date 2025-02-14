@@ -40,7 +40,7 @@ class TransitionActivity : ComponentActivity() {
     }
 
     enum class TransitionMode {
-        SLIDE, LINEAR_WIPE, RADIAL_UNFOLD, FADE, WRAP, ZOOM_BLUR, BURN
+        SLIDE, LINEAR_WIPE, RADIAL_UNFOLD, FADE, ROTATING, ZOOM_BLUR, BURN
     }
 
     companion object {
