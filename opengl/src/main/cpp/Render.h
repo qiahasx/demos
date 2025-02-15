@@ -28,5 +28,5 @@ protected:
     GLuint shaderProgram;
     std::vector<GLint> textureIds{};
     std::string filePath = std::string(
-            "/storage/emulated/0/Android/data/com.example.opengl/files/");
+            "/storage/emulated/0/Android/data/com.example.demo/files/");
 };

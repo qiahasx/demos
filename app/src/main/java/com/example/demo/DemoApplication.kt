@@ -1,14 +1,11 @@
-package com.example.opengl
+package com.example.demo
 
-import android.app.Application
-import com.tencent.mmkv.MMKV
+import com.example.common.BaseApp
 import java.io.File
 
-class OpenGlApp : Application() {
+class DemoApplication : BaseApp() {
     override fun onCreate() {
         super.onCreate()
-        instance = this
-        MMKV.initialize(this)
         copyAssets()
     }
 
@@ -24,10 +21,5 @@ class OpenGlApp : Application() {
                 }
             }
         }
-    }
-
-    companion object {
-        lateinit var instance: OpenGlApp
-        const val KEY_FIRST_START = "first_start"
     }
 }

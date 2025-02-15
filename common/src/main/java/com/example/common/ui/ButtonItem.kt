@@ -1,5 +1,6 @@
-package com.example.opengl.ui
+package com.example.common.ui
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,48 +11,45 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.common.MainViewModel
+import com.example.common.util.LocalMainViewModel
+import com.example.common.util.getString
 
 @Composable
 fun ButtonItem(
     @StringRes title: Int,
     @StringRes message: Int,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: (Context, MainViewModel) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-    val dialog = LocalDialog.current
+    val mainViewModel = LocalMainViewModel.current
+    val context = LocalContext.current
     ElevatedButton(
         onClick = {
-            onClick.invoke()
+            onClick.invoke(context, mainViewModel)
         },
-        modifier = modifier
+        modifier = Modifier
             .padding(16.dp)
             .height(44.dp)
     ) {
         Text(getString(title))
         IconButton({
-            scope.launch(Dispatchers.IO) {
-                dialog.emit(Pair(getString(title), getString(message)))
-            }
+            mainViewModel.showTextInfo(getString(title), getString(message))
         }) { Icon(Icons.Default.Info, "") }
     }
 }
-
 
 @Composable
 fun ButtonItem(
     bean: ButtonItemBean
 ) {
-    ButtonItem(bean.title, bean.message) { bean.onClick.invoke() }
+    ButtonItem(bean.title, bean.message, bean.onClick)
 }
 
 data class ButtonItemBean(
     @StringRes val title: Int,
     @StringRes val message: Int,
-    val onClick: () -> Unit,
+    val onClick: (Context, MainViewModel) -> Unit,
 )

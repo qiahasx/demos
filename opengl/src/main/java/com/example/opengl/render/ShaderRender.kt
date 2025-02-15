@@ -1,7 +1,7 @@
 package com.example.opengl.render
 
 import android.opengl.GLSurfaceView
-import com.example.opengl.OpenGlApp
+import com.example.common.BaseApp
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -17,7 +17,7 @@ class ShaderRender : GLSurfaceView.Renderer {
     private var pShader: Long = 0
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        val imagePath = OpenGlApp.instance.getExternalFilesDir("image")?.absolutePath.toString()
+        val imagePath = BaseApp.instance.getExternalFilesDir("image")?.absolutePath.toString()
         pShader = initOpenGL(imagePath)
     }
 

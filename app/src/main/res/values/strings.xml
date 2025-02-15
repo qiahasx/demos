@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">app</string>
+    <string name="opengl_demo">OPENGL DEMO</string>
+    <string name="opengl_demo_info">学习opengl时候写的demo, 包括:\n
+    1. 绘制可以简单根据用户触摸旋转的彩色立方体\n
+    2. 绘制简单图元\n
+    3. 绘制不同的转场动画</string>
 </resources>
