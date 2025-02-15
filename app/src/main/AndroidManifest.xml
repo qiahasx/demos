@@ -28,7 +28,7 @@
         </activity>
         <activity android:name=".ImageActivity" />
         <activity android:name=".CubeActivity" />
-        <activity android:name=".SelectElementActivity" />
+        <activity android:name=".SelectActivity" />
         <activity android:name=".ElementActivity" />
         <activity android:name=".TransitionActivity" />
     </application>

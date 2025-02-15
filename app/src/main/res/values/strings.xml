@@ -22,5 +22,19 @@
     <string name="gl_triangle_fan">GL_TRIANGLE_FAN</string>
     <string name="gl_triangle_fan_info">行为：所有三角形共享第一个顶点, 顶点序列 [v0, v1, v2, v3] 会渲染两个三角形：v0→v1→v2 和 v0→v2→v3。</string>
     <string name="transition_render">transition_render</string>
-    <string name="transition_render_info">transition render info</string>
+    <string name="transition_render_info">绘制一个转场动画</string>
+    <string name="transition_slide">SLIDE</string>
+    <string name="transition_wipe">LINEAR_WIPE</string>
+    <string name="transition_radial">RADIAL_UNFOLD</string>
+    <string name="transition_fade">FADE</string>
+    <string name="transition_rotating">ROTATING</string>
+    <string name="transition_blur">ZOOM_BLUR</string>
+    <string name="transition_burn">BURN</string>
+    <string name="transition_slide_info">固定方向的平移动画</string>
+    <string name="transition_wipe_info">线性擦除</string>
+    <string name="transition_radial_info">中央展开</string>
+    <string name="transition_fade_info">渐隐</string>
+    <string name="transition_rotating_info">切分方块旋转</string>
+    <string name="transition_blur_info">切分方块旋转 \n 出自: https://www.shadertoy.com/view/Ml3XR2</string>
+    <string name="transition_burn_info">燃烧 \n 出自: https://www.shadertoy.com/view/ltV3RG</string>
 </resources>

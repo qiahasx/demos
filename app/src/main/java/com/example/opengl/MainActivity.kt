@@ -12,7 +12,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.opengl.SelectElementActivity.Companion.navSelect
+import com.example.opengl.SelectActivity.Companion.navSelect
 import com.example.opengl.ui.ButtonItem
 import com.example.opengl.ui.LocalDialog
 import com.example.opengl.ui.TextInfoDialog
@@ -45,12 +45,12 @@ class MainActivity : ComponentActivity() {
                         }
                         item {
                             ButtonItem(R.string.element_gl_render, R.string.element_gl_render_info) {
-                                navSelect(SelectElementActivity.ELEMENT)
+                                navSelect(SelectActivity.ELEMENT)
                             }
                         }
                         item {
-                            ButtonItem(R.string.element_gl_render, R.string.element_gl_render_info) {
-                                navSelect(SelectElementActivity.TRANSITION)
+                            ButtonItem(R.string.transition_render, R.string.transition_render_info) {
+                                navSelect(SelectActivity.TRANSITION)
                             }
                         }
                     }

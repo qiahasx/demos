@@ -13,8 +13,8 @@ struct Vertex {
 
 void TransitionRender::init() {
     loadShaderFromFiles("transition.vert", "transition.frag");
-    addTextureFromFile("3.png", GL_TEXTURE0);
-    addTextureFromFile("4.png", GL_TEXTURE1);
+    addTextureFromFile("transition_0.png", GL_TEXTURE0);
+    addTextureFromFile("transition_1.png", GL_TEXTURE1);
     glUseProgram(shaderProgram);
     progressLoc = glGetUniformLocation(shaderProgram, "progress");
     glUniform1i(glGetUniformLocation(shaderProgram, "oldTexture"), 0);
@@ -41,22 +41,19 @@ void TransitionRender::init() {
 void TransitionRender::draw() {
     glClear(GL_COLOR_BUFFER_BIT);
     progress = (progress + 0.003f);
-    if (progress >= 1.01f) {
-        if (progress >= 2.0f) {
-            progress = 0.0f;
-        }
-    } else {
+    if (progress >= 1.0f) {
+        progress = -0.2f;
+        glUniform1f(progressLoc, 1.0f);
+    } else if (progress >= 0.0f) {
         glUniform1f(progressLoc, progress);
     }
     vao.bind();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     vao.unbind();
 }
 
 void TransitionRender::resize(int width, int height) {
     glViewport(0, 0, width, height);
-    GLint location = glGetUniformLocation(shaderProgram, "iResolution");
-    glUniform2f(location, (GLfloat) width, (GLfloat) height);
 }
 
 extern "C" JNIEXPORT jlong JNICALL
@@ -85,4 +82,3 @@ Java_com_example_opengl_render_TransitionRender_resize(
         jint height) {
     reinterpret_cast<TransitionRender *>(pRender)->resize(width, height);
 }
-
