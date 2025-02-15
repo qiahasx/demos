@@ -29,13 +29,18 @@ import com.example.common.ui.ButtonItemBean
 import com.example.common.ui.TextInfoDialog
 import com.example.common.ui.theme.AppTheme
 import com.example.common.util.LocalMainViewModel
+import com.example.common.util.startActivity
 import com.example.opengl.SELECT_OPENGL_DEMO
+import com.example.syncplayer.SyncPlayerActivity
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
     private val demos = listOf(
         ButtonItemBean(R.string.opengl_demo, R.string.opengl_demo_info) { _, _ ->
             viewModel.showBottomSheet(SELECT_OPENGL_DEMO)
+        },
+        ButtonItemBean(com.example.syncplayer.R.string.sync_player, com.example.syncplayer.R.string.sync_player_info) { _, _ ->
+            startActivity(SyncPlayerActivity::class.java)
         }
     )
 

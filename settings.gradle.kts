@@ -23,3 +23,4 @@ rootProject.name = "openGl"
 include(":opengl")
 include(":app")
 include(":common")
+include(":syncplayer")

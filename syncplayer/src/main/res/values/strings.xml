@@ -1,0 +1,27 @@
+<resources>
+    <string name="use_JNI_resample">use JNI resample</string>
+    <string name="pick_file">Pick File</string>
+    <string name="start">Start</string>
+    <string name="setting">Setting</string>
+    <string name="confirm">confirm</string>
+    <string name="play_track">Play Track</string>
+    <string name="jni_resample_title">Use libsamplerate</string>
+    <string name="jni_resample_content">
+        Whether to use libsndfile/libsamplerate for audio resampling during playback.\n
+        This is a relatively lightweight, high-performance, high-quality C library.\n
+        JNI invocation and complex algorithms may introduce higher performance overhead.\n
+        If disabled, a linear interpolation resampling algorithm written in Kotlin will be used.\n
+        The Kotlin implementation has better performance but produces mediocre quality.\n\n
+        Note: libsamplerate may occasionally introduce noise (cause unknown).
+    </string>
+    <string name="file_empty">please first pick up audio file</string>
+    <string name="sync_player" translatable="false">AudioSyncPlayer</string>
+    <string name="sync_player_info">
+    AudioSyncPlayer is an audio synchronization player.\n
+    It can play multiple audio files and synchronize their playback progress.\n
+    It also allows adjusting the volume of each audio track.\n
+    It supports playing audio files with different channel counts or sample rates, and will automatically resample to the highest values by default.\n
+    Click on an audio file on the home page to view its details and resample it to a specified format.
+</string>
+    <string name="guide_title">Welcome to AudioSyncPlayer</string>
+</resources>

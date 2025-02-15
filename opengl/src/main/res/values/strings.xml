@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">openGl</string>
     <string name="image_gl_render">Image GlRender</string>
     <string name="image_gl_render_info">使用openGl 渲染纹理绘制一张图片, 点击屏幕选择图片, 图片会被保存到app内部存储空间\n 图片信息使用libstbimage读取</string>
     <string name="cube_gl_render">Cube GlRender</string>
