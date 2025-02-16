@@ -31,6 +31,7 @@ import com.example.common.ui.theme.AppTheme
 import com.example.common.util.LocalMainViewModel
 import com.example.common.util.startActivity
 import com.example.opengl.SELECT_OPENGL_DEMO
+import com.example.record.RecordActivity
 import com.example.syncplayer.SyncPlayerActivity
 
 class MainActivity : ComponentActivity() {
@@ -41,6 +42,9 @@ class MainActivity : ComponentActivity() {
         },
         ButtonItemBean(com.example.syncplayer.R.string.sync_player, com.example.syncplayer.R.string.sync_player_info) { _, _ ->
             startActivity(SyncPlayerActivity::class.java)
+        },
+        ButtonItemBean(com.example.syncplayer.R.string.sync_player, com.example.syncplayer.R.string.sync_player_info) { _, _ ->
+            startActivity(RecordActivity::class.java)
         }
     )
 

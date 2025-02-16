@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation(project(":opengl"))
     implementation(project(":syncplayer"))
+    implementation(project(":record"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
