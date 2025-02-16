@@ -4,6 +4,7 @@
 
     <application>
         <activity android:name=".RecordActivity"/>
+        <activity android:name=".SettingActivity"/>
         <service android:name=".RecordService"/>
     </application>
 </manifest>

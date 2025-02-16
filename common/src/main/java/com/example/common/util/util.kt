@@ -9,6 +9,7 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -118,4 +119,8 @@ fun Context.checkPermission(permission : String): Boolean {
         this,
         permission,
     ) == PackageManager.PERMISSION_GRANTED
+}
+
+fun toast(msg: String) {
+    Toast.makeText(BaseApp.instance, msg, Toast.LENGTH_SHORT).show()
 }

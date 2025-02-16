@@ -38,8 +38,8 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
     var radius = 16.dpf
         set(value) {
             field = value
-//            val drawable = (background as? ShadowDrawable) ?: return
-//            drawable.setShadowCorner(field)
+            val drawable = (background as? ShadowDrawable) ?: return
+            drawable.setShadowCorner(field)
         }
     private val viewModel by (context as ComponentActivity).viewModels<RecordViewModel>()
     private val lifecycleOwner = context as ComponentActivity
@@ -50,7 +50,7 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
         setAttributes(56f, R.color.white, 700)
         transitionName = "tvDbValue"
         minWidth = paint.measureText("00").roundToInt()
-//        text = viewModel.volume?.value?.toString() ?: "00"
+        text = viewModel.volume.value?.value?.toString() ?: "00"
     }
     val tvDb = textView {
         setMargins(l = 4.dpi)
@@ -79,7 +79,7 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
         radius = this@DBMeterLayout.radius
         setPadding(16.dpi, 24.dpi, 16.dpi, 48.dpi)
         transitionName = "tvDescribe"
-        val db = 0
+        val db = viewModel.volume.value?.value ?: 0
         text = when {
             db <= 30 -> getString(R.string.decibel_30)
             db in 31..40 -> getString(R.string.decibel_40)
@@ -140,7 +140,10 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         tvDbValue.run { layout(marginLeft, marginTop) }
         tvDb.run { layout(tvDbValue.right + marginLeft, tvDbValue.bottom - measuredHeight - marginBottom) }
-        tvSetting.run { layout(marginRight, marginTop) }
+        tvSetting.run {
+            val x = r - l - measuredWidth - marginRight
+            layout(x, marginTop)
+        }
         soundWaveView.run { layout(marginLeft, tvDbValue.bottom + marginTop) }
         tvDescribe.run { layout(marginLeft, soundWaveView.bottom + marginTop) }
         frameLayout.run { layout(marginLeft, tvDescribe.bottom + marginTop) }

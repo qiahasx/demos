@@ -8,4 +8,6 @@
     <string name="decibel_60">🏠 Sounds of daily life, like the small noises at home, warm and peaceful.</string>
     <string name="decibel_70">🚗 The hustle and bustle of the city, the sound of cars driving, busy yet vibrant.</string>
     <string name="decibel_80_above">⚠️ The current volume is too loud and may harm your hearing. Please avoid prolonged exposure to this environment!</string>
+    <string name="please_before_start">⚠️ 请在开始录音前调用!</string>
+    <string name="encode_type">编码方式</string>
 </resources>

@@ -11,7 +11,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.app.ActivityOptionsCompat
 import com.example.common.util.checkPermission
+import com.example.common.util.toast
 import com.example.record.ui.MainLayout
 
 class RecordActivity : ComponentActivity() {
@@ -22,7 +24,7 @@ class RecordActivity : ComponentActivity() {
             if (isgranted) {
                 layout.btnAction.performClick()
             } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+                toast("Permission denied")
             }
         }
 
@@ -43,20 +45,23 @@ class RecordActivity : ComponentActivity() {
             },
             Context.BIND_AUTO_CREATE,
         )
-        Toast.makeText(this@RecordActivity, "aaaacca", Toast.LENGTH_SHORT).show()
         setContentView(
             MainLayout(this).apply {
                 layout = this
                 btnAction.setOnClickListener {
-                    Toast.makeText(this@RecordActivity, "aaaacca", Toast.LENGTH_SHORT).show()
                     if (checkPermission(Manifest.permission.RECORD_AUDIO)) {
                         viewModel.toggleRecord()
-                        isSelected = viewModel.state != AudioRecorder.RecordState.RECORDING
+                        isSelected = viewModel.state == AudioRecorder.RecordState.RECORDING
                     } else {
                         requestPermission.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 }
             }
         )
+    }
+
+    fun navSetting(options: ActivityOptionsCompat) {
+        val intent = Intent(this, SettingActivity::class.java)
+        startActivity(intent, options.toBundle())
     }
 }

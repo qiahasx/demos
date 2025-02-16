@@ -16,6 +16,7 @@ import com.example.common.util.layout
 import com.example.common.util.marginLayoutParams
 import com.example.common.util.setMargins
 import com.example.record.R
+import com.example.record.RecordActivity
 
 class MainLayout(context: Context) : ViewGroup(context) {
     private val dbMeter =
@@ -33,7 +34,7 @@ class MainLayout(context: Context) : ViewGroup(context) {
                         Pair(frameLayout, "frameLayout"),
                         Pair(this, "dbMeter"),
                     )
-//                (context as? MainActivity)?.navSetting(options)
+                (context as? RecordActivity)?.navSetting(options)
             }
             this@MainLayout.addView(this)
         }

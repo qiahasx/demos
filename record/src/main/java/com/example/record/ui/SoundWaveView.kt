@@ -24,7 +24,7 @@ class SoundWaveView(context: Context) : View(context) {
         color = Color.GRAY
     }
     private var barColor = BarColor.GREEN
-    private val minDb = 30
+    private val minDb = 0
     private val maxDb = 120
     private val warningDb = 80
     private val barValue = 5.0
@@ -109,7 +109,7 @@ class SoundWaveView(context: Context) : View(context) {
         canvas.drawText(maxDb.toString(), maxDbStart, paddingRect.height().toFloat(), textPaint)
     }
 
-    private fun drawBar(canvas: Canvas, color: BarColor, @IntRange(30, 120) db: Int) {
+    private fun drawBar(canvas: Canvas, color: BarColor, @IntRange(0, 120) db: Int) {
         val height = paddingRect.height()
         barPaint.color = getColor(color.deepColor)
         canvas.save()
