@@ -10,4 +10,8 @@
     <string name="decibel_80_above">⚠️ The current volume is too loud and may harm your hearing. Please avoid prolonged exposure to this environment!</string>
     <string name="please_before_start">⚠️ 请在开始录音前调用!</string>
     <string name="encode_type">编码方式</string>
+    <string name="enable_noise_suppress">启用噪音抑制器</string>
+    <string name="enable_automatic_gain">启用自动增益控制</string>
+    <string name="enable_automatic_echo">启用声学回声消除器</string>
+    <string name="channels">通道数</string>
 </resources>

@@ -8,16 +8,9 @@ import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import com.example.common.BaseApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.BufferedOutputStream
 import java.io.File
 import kotlin.math.log10
@@ -132,7 +125,7 @@ class AudioRecorder(
         private lateinit var audioRecord: AudioRecord
         private var sampleRateInHz: Int = 44100
         private var audioFormat = AudioRecorderFormat.PCM_16BIT
-        private var channelConfig = AudioRecorderChannelConfig.STEREO
+        private var channelConfig = Channel.STEREO
         private var audioSource: AudioRecorderSource = AudioRecorderSource.MIC
         private var acousticEchoCanceler: AcousticEchoCanceler? = null
         private var automaticGainControl: AutomaticGainControl? = null
@@ -179,7 +172,7 @@ class AudioRecorder(
         /**
          * 设置声道配置
          */
-        fun setChannelConfig(channelConfig: AudioRecorderChannelConfig): Builder {
+        fun setChannelConfig(channelConfig: Channel): Builder {
             this.channelConfig = channelConfig
             return this
         }
@@ -188,7 +181,7 @@ class AudioRecorder(
          * 禁用声学回声消除器
          */
         fun disEnableAcousticEchoCanceler(): Builder {
-            addAcousticEchoCanceler = true
+            addAcousticEchoCanceler = false
             return this
         }
 
@@ -196,7 +189,7 @@ class AudioRecorder(
          * 禁用自动增益控制
          */
         fun disEnableAutomaticGainControl(): Builder {
-            addAutomaticGainControl = true
+            addAutomaticGainControl = false
             return this
         }
 
@@ -204,7 +197,7 @@ class AudioRecorder(
          * 禁用噪音抑制器
          */
         fun disEnableNoiseSuppressor(): Builder {
-            addNoiseSuppressor = true
+            addNoiseSuppressor = false
             return this
         }
 
@@ -277,7 +270,8 @@ class AudioRecorder(
             PCM_16BIT(AudioFormat.ENCODING_PCM_16BIT),
         }
 
-        enum class AudioRecorderChannelConfig(val value: Int) {
+        enum class Channel(val value: Int) {
+            MOMO(AudioFormat.CHANNEL_IN_MONO),
             STEREO(AudioFormat.CHANNEL_IN_STEREO),
         }
 
@@ -291,5 +285,9 @@ class AudioRecorder(
         RECORDING,
         PAUSED,
         RELEASE,
+    }
+
+    enum class Encoder {
+        MP3, AAC
     }
 }

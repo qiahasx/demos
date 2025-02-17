@@ -4,29 +4,14 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.text.SpannableString
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.core.view.marginBottom
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
-import androidx.core.view.marginTop
-import androidx.core.view.setPadding
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
-import com.example.common.util.dpf
-import com.example.common.util.dpi
-import com.example.common.util.getString
-import com.example.common.util.heightUsed
-import com.example.common.util.layout
-import com.example.common.util.marginLayoutParams
-import com.example.common.util.matchParent
-import com.example.common.util.setAttributes
-import com.example.common.util.setMargins
-import com.example.common.util.textView
-import com.example.common.util.wrapContent
+import com.example.common.util.*
 import com.example.record.R
 import com.example.record.RecordViewModel
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +78,7 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
         this@DBMeterLayout.addView(this)
     }
     val frameLayout = FrameLayout(context).apply {
-        layoutParams = marginLayoutParams(matchParent, wrapContent)
+        layoutParams = marginLayoutParams(matchParent, matchParent)
         transitionName = "frameLayout"
         this@DBMeterLayout.addView(this)
     }
@@ -104,7 +89,6 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
         val solidDrawable = ColorDrawable(Color.BLACK)
         background = ShadowDrawable(solidDrawable, 8.dpf, radius)
         viewModel.volume.observe(lifecycleOwner) { volumes ->
-            Log.d("cascsa", ": sacsaca ${volumes == null}")
             soundWaveView.setVolume(volumes)
             volumes ?: return@observe
             lifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
@@ -132,8 +116,10 @@ class DBMeterLayout(context: Context) : ViewGroup(context) {
         measureChild(tvSetting, widthMeasureSpec, heightMeasureSpec)
         measureChildWithMargins(soundWaveView, widthMeasureSpec, 0, heightMeasureSpec, 0)
         measureChild(tvDescribe, widthMeasureSpec, heightMeasureSpec)
-        measureChild(frameLayout, widthMeasureSpec, heightMeasureSpec)
-        val h = tvDbValue.heightUsed + soundWaveView.heightUsed + tvDescribe.heightUsed + frameLayout.heightUsed
+        val used = tvDbValue.heightUsed + soundWaveView.heightUsed + tvDescribe.heightUsed
+        val remain = if (frameLayout.childCount > 0) MeasureSpec.getSize(heightMeasureSpec) - used else 0
+        measureChild(frameLayout, widthMeasureSpec, MeasureSpec.makeMeasureSpec(remain, MeasureSpec.EXACTLY))
+        val h = used + frameLayout.heightUsed
         setMeasuredDimension(widthMeasureSpec, resolveSize(h, heightMeasureSpec))
     }
 
