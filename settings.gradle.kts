@@ -20,4 +20,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "openGl"
+include(":opengl")
 include(":app")
+include(":common")
+include(":syncplayer")
+include(":record")
+include(":lame")

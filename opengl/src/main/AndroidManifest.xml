@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature
+        android:glEsVersion="0x00030000"
+        android:required="true" />
+    <application>
+        <activity android:name=".ImageActivity" />
+        <activity android:name=".CubeActivity" />
+        <activity android:name=".ElementActivity" />
+        <activity android:name=".TransitionActivity" />
+    </application>
+
+</manifest>

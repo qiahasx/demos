@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="db" translatable="false">DB</string>
+    <string name="click_to_set_more">Click to set more ></string>
+    <string name="decibel_30">📚 As quiet as a library, the world seems to be holding its breath.</string>
+    <string name="decibel_40">🛏 Soft whispers, like a lullaby murmured in your ear.</string>
+    <string name="decibel_50">☕ Casual conversations, akin to the background music in a café, warm and pleasant.</string>
+    <string name="decibel_60">🏠 Sounds of daily life, like the small noises at home, warm and peaceful.</string>
+    <string name="decibel_70">🚗 The hustle and bustle of the city, the sound of cars driving, busy yet vibrant.</string>
+    <string name="decibel_80_above">⚠️ The current volume is too loud and may harm your hearing. Please avoid prolonged exposure to this environment!</string>
+    <string name="please_before_start">⚠️ 请在开始录音前调用!</string>
+    <string name="encode_type">编码方式</string>
+</resources>
