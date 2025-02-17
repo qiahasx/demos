@@ -3,12 +3,19 @@ package com.example.record.ui
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
@@ -36,11 +43,14 @@ fun SettingsScreen() {
             .padding(vertical = 6.dp)
     ) {
         SampleRateSetting()
-        ChannelSelection()
-        EncoderSelection()
-        AudioFeatureSwitch(NOISE_SUPPRESSOR)
-        AudioFeatureSwitch(AUTOMATIC_GAIN)
-        AudioFeatureSwitch(AUTOMATIC_ECHO)
+        val modifier = Modifier
+            .align(Alignment.End)
+            .padding(16.dp, 6.dp)
+        ChannelSelection(modifier)
+        EncoderSelection(modifier)
+        AudioFeatureSwitch(NOISE_SUPPRESSOR, modifier)
+        AudioFeatureSwitch(AUTOMATIC_GAIN, modifier)
+        AudioFeatureSwitch(AUTOMATIC_ECHO, modifier)
     }
 }
 
@@ -73,11 +83,12 @@ private fun SampleRateSetting() {
 }
 
 @Composable
-private fun ChannelSelection() {
+private fun ChannelSelection(modifier: Modifier = Modifier) {
     val viewModel = LocalRecordViewModel.current
     val channels by viewModel.channels.collectAsState()
     SettingsItem(titleRes = null, label = getString(R.string.channels)) {
         SegmentedButtonGroup(
+            modifier,
             items = AudioRecorder.Builder.Channel.entries,
             selectedItem = channels,
             onItemSelected = { viewModel.selectChannels(it) }
@@ -86,7 +97,7 @@ private fun ChannelSelection() {
 }
 
 @Composable
-private fun AudioFeatureSwitch(key: Preferences.Key<Boolean>) {
+private fun AudioFeatureSwitch(key: Preferences.Key<Boolean>, modifier: Modifier = Modifier) {
     val viewModel = LocalRecordViewModel.current
     val enabled by when (key) {
         NOISE_SUPPRESSOR -> viewModel.enableNoiseSuppressor.collectAsState()
@@ -100,6 +111,7 @@ private fun AudioFeatureSwitch(key: Preferences.Key<Boolean>) {
     }
     SettingsItem(titleRes = titleRes) {
         Switch(
+            modifier = modifier,
             checked = enabled,
             onCheckedChange = { viewModel.switchFeature(key, it) },
             colors = SwitchDefaults.colors(checkedThumbColor = green_deep, checkedTrackColor = Color.White)
@@ -108,12 +120,13 @@ private fun AudioFeatureSwitch(key: Preferences.Key<Boolean>) {
 }
 
 @Composable
-private fun EncoderSelection() {
+private fun EncoderSelection(modifier: Modifier = Modifier) {
     val viewModel = LocalRecordViewModel.current
-    val encoder by viewModel.encoder.collectAsState()
+    val encoder by viewModel.encode.collectAsState()
     SettingsItem(titleRes = R.string.encode_type) {
         SegmentedButtonGroup(
-            items = AudioRecorder.Encoder.entries,
+            modifier,
+            items = AudioRecorder.Encode.entries,
             selectedItem = encoder,
             onItemSelected = {
                 viewModel.selectEncoder(it)
@@ -128,31 +141,25 @@ private fun SettingsItem(
     label: String? = null,
     content: @Composable () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = titleRes?.let { getString(it) } ?: label.orEmpty(),
-            modifier = Modifier.weight(1f),
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 18.sp
-        )
-        content()
-    }
+    Text(
+        text = titleRes?.let { getString(it) } ?: label.orEmpty(),
+        modifier = Modifier.padding(16.dp, 6.dp),
+        color = Color.White,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp
+    )
+    content()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun <T> SegmentedButtonGroup(
+    modifier: Modifier = Modifier,
     items: List<T>,
     selectedItem: T,
-    onItemSelected: (T) -> Unit
+    onItemSelected: (T) -> Unit,
 ) {
-    SingleChoiceSegmentedButtonRow {
+    SingleChoiceSegmentedButtonRow(modifier) {
         items.forEachIndexed { index, item ->
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(

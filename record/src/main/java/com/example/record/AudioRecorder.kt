@@ -8,9 +8,17 @@ import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import com.example.common.BaseApp
-import kotlinx.coroutines.*
+import com.example.common.util.debug
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedOutputStream
 import java.io.File
 import kotlin.math.log10
@@ -20,6 +28,7 @@ class AudioRecorder(
     private val bitDepth: Int,
     private val channelCount: Int,
     private val minBufferSize: Int = 0,
+    val encode: Encode,
     private val audioRecord: AudioRecord,
     private val acousticEchoCanceler: AcousticEchoCanceler?,
     private val automaticGainControl: AutomaticGainControl?,
@@ -122,7 +131,6 @@ class AudioRecorder(
 
     class Builder {
         private var minBufferSize: Int = 0
-        private lateinit var audioRecord: AudioRecord
         private var sampleRateInHz: Int = 44100
         private var audioFormat = AudioRecorderFormat.PCM_16BIT
         private var channelConfig = Channel.STEREO
@@ -133,6 +141,8 @@ class AudioRecorder(
         private var addAcousticEchoCanceler: Boolean = true
         private var addAutomaticGainControl: Boolean = true
         private var addNoiseSuppressor: Boolean = true
+        private var encode = Encode.MP3
+
 
         @OptIn(DelicateCoroutinesApi::class)
         private var scope: CoroutineScope = GlobalScope
@@ -150,6 +160,14 @@ class AudioRecorder(
          */
         fun setScope(scope: CoroutineScope): Builder {
             this.scope = scope
+            return this
+        }
+
+        /**
+         * 设置录音的编码方式
+         */
+        fun setEncode(encode: Encode): Builder {
+            this.encode = encode
             return this
         }
 
@@ -178,26 +196,26 @@ class AudioRecorder(
         }
 
         /**
-         * 禁用声学回声消除器
+         * 禁用/启用声学回声消除器
          */
-        fun disEnableAcousticEchoCanceler(): Builder {
-            addAcousticEchoCanceler = false
+        fun isEnableAcousticEchoCanceler(value: Boolean): Builder {
+            addAcousticEchoCanceler = value
             return this
         }
 
         /**
-         * 禁用自动增益控制
+         * 禁用/启用自动增益控制
          */
-        fun disEnableAutomaticGainControl(): Builder {
-            addAutomaticGainControl = false
+        fun isEnableAutomaticGainControl(value: Boolean): Builder {
+            addAutomaticGainControl = value
             return this
         }
 
         /**
-         * 禁用噪音抑制器
+         * 禁用/启用噪音抑制器
          */
-        fun disEnableNoiseSuppressor(): Builder {
-            addNoiseSuppressor = false
+        fun isEnableNoiseSuppressor(value: Boolean): Builder {
+            addNoiseSuppressor = value
             return this
         }
 
@@ -209,7 +227,7 @@ class AudioRecorder(
                     channelConfig.value,
                     audioFormat.value,
                 )
-            audioRecord =
+            val audioRecord =
                 AudioRecord(
                     audioSource.value,
                     sampleRateInHz,
@@ -226,6 +244,7 @@ class AudioRecorder(
                 audioFormat.value,
                 channelConfig.value,
                 minBufferSize,
+                encode,
                 audioRecord,
                 acousticEchoCanceler,
                 automaticGainControl,
@@ -240,6 +259,7 @@ class AudioRecorder(
             if (!AcousticEchoCanceler.isAvailable()) {
                 return
             }
+            debug("handleAcousticEchoCancel")
             acousticEchoCanceler = AcousticEchoCanceler.create(audioSessionId)
             acousticEchoCanceler?.enabled = true
         }
@@ -251,6 +271,7 @@ class AudioRecorder(
             if (!AutomaticGainControl.isAvailable()) {
                 return
             }
+            debug("handleAutomaticGainControl")
             automaticGainControl = AutomaticGainControl.create(audioSessionId)
             automaticGainControl?.enabled = true
         }
@@ -262,8 +283,13 @@ class AudioRecorder(
             if (!NoiseSuppressor.isAvailable()) {
                 return
             }
+            debug("handleNoiseSuppress")
             noiseSuppressor = NoiseSuppressor.create(audioSessionId)
             noiseSuppressor?.enabled = true
+        }
+
+        override fun toString(): String {
+            return "Builder(minBufferSize=$minBufferSize, sampleRateInHz=$sampleRateInHz, audioFormat=$audioFormat, channelConfig=$channelConfig, audioSource=$audioSource, acousticEchoCanceler=$acousticEchoCanceler, automaticGainControl=$automaticGainControl, noiseSuppressor=$noiseSuppressor, addAcousticEchoCanceler=$addAcousticEchoCanceler, addAutomaticGainControl=$addAutomaticGainControl, addNoiseSuppressor=$addNoiseSuppressor, encode=$encode, scope=$scope)"
         }
 
         enum class AudioRecorderFormat(val value: Int) {
@@ -287,7 +313,7 @@ class AudioRecorder(
         RELEASE,
     }
 
-    enum class Encoder {
-        MP3, AAC
+    enum class Encode {
+        MP3, AAC, AAC_HC
     }
 }

@@ -116,7 +116,6 @@ class MainActivity : ComponentActivity() {
                 viewModel.dialog.collectAsState().value?.let { (title, message) ->
                     TextInfoDialog(title, message)
                 }
-
             }
         }
     }

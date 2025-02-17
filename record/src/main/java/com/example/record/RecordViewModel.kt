@@ -1,6 +1,10 @@
 package com.example.record
 
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,10 +12,9 @@ import com.example.common.BaseApp
 import com.example.common.dataStore
 import com.example.common.util.getString
 import com.example.common.util.toast
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class RecordViewModel : ViewModel() {
@@ -19,86 +22,75 @@ class RecordViewModel : ViewModel() {
     val state: AudioRecorder.RecordState
         get() = recordBinder?.state ?: AudioRecorder.RecordState.INIT
     var recordBinder: RecordService.RecordBinder? = null
-        set(value) {
-            volume.postValue(value?.volume)
-            field = value
-        }
 
-    val encoder: StateFlow<AudioRecorder.Encoder> = BaseApp.instance.dataStore.data
-        .map { prefs ->
-            val index = prefs[PreferencesKeys.ENCODER] ?: 0
-            AudioRecorder.Encoder.entries[index]
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = AudioRecorder.Encoder.entries[0]
-        )
-    val sampleRate: StateFlow<String> = BaseApp.instance.dataStore.data
-        .map { prefs ->
-            prefs[PreferencesKeys.SAMPLE_RATE] ?: "48000"
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = "48000"
-        )
+    private val _sampleRate = MutableStateFlow("48000")
+    val sampleRate: StateFlow<String> = _sampleRate
 
-    val channels: StateFlow<AudioRecorder.Builder.Channel> = BaseApp.instance.dataStore.data
-        .map { prefs ->
-            val index = prefs[PreferencesKeys.CHANNELS] ?: 1
-            AudioRecorder.Builder.Channel.entries.getOrNull(index) ?: AudioRecorder.Builder.Channel.MOMO
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AudioRecorder.Builder.Channel.MOMO
-        )
+    private val _encode = MutableStateFlow(AudioRecorder.Encode.entries[0])
+    val encode: StateFlow<AudioRecorder.Encode> = _encode
 
-    val enableNoiseSuppressor: StateFlow<Boolean> = BaseApp.instance.dataStore.data
-        .map { prefs ->
-            prefs[PreferencesKeys.NOISE_SUPPRESSOR] ?: true
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+    private val _channels = MutableStateFlow(AudioRecorder.Builder.Channel.MOMO)
+    val channels: StateFlow<AudioRecorder.Builder.Channel> = _channels
 
-    val enableAutomaticGain: StateFlow<Boolean> = BaseApp.instance.dataStore.data
-        .map { prefs ->
-            prefs[PreferencesKeys.AUTOMATIC_GAIN] ?: true
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true
-        )
+    private val _enableNoiseSuppressor = MutableStateFlow(true)
+    val enableNoiseSuppressor: StateFlow<Boolean> = _enableNoiseSuppressor
 
-    val enableAutomaticEcho: StateFlow<Boolean> = BaseApp.instance.dataStore.data
-        .map { prefs ->
-            prefs[PreferencesKeys.AUTOMATIC_ECHO] ?: false
+    private val _enableAutomaticGain = MutableStateFlow(true)
+    val enableAutomaticGain: StateFlow<Boolean> = _enableAutomaticGain
+
+    private val _enableAutomaticEcho = MutableStateFlow(false)
+    val enableAutomaticEcho: StateFlow<Boolean> = _enableAutomaticEcho
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            BaseApp.instance.dataStore.data.collect { prefs ->
+                val sampleRateValue = prefs[PreferencesKeys.SAMPLE_RATE] ?: "48000"
+                _sampleRate.emit(sampleRateValue)
+                val encodeIndex = prefs[PreferencesKeys.ENCODER] ?: 0
+                _encode.emit(AudioRecorder.Encode.entries[encodeIndex])
+                val channelIndex = prefs[PreferencesKeys.CHANNELS] ?: 1
+                _channels.emit(
+                    AudioRecorder.Builder.Channel.entries.getOrNull(channelIndex)
+                        ?: AudioRecorder.Builder.Channel.MOMO
+                )
+                _enableNoiseSuppressor.emit(
+                    prefs[PreferencesKeys.NOISE_SUPPRESSOR] ?: true
+                )
+                _enableAutomaticGain.emit(
+                    prefs[PreferencesKeys.AUTOMATIC_GAIN] ?: true
+                )
+                _enableAutomaticEcho.emit(
+                    prefs[PreferencesKeys.AUTOMATIC_ECHO] ?: false
+                )
+            }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    }
+
     fun toggleRecord() {
         val binder = recordBinder ?: return
         when (binder.state) {
-            AudioRecorder.RecordState.INIT -> binder.startRecording()
+            AudioRecorder.RecordState.INIT -> startRecording()
             AudioRecorder.RecordState.RECORDING -> binder.stopRecording()
             AudioRecorder.RecordState.PAUSED -> binder.resumeRecording()
-            AudioRecorder.RecordState.RELEASE -> {}
+            else -> {}
         }
     }
 
-    fun releaseRecord() {
-        recordBinder?.releaseResources()
+    private fun startRecording() {
+        val binder = recordBinder ?: return
+        val builder = AudioRecorder.Builder()
+            .setChannelConfig(channels.value)
+            .setSampleRateInHz(sampleRate.value.toInt())
+            .setEncode(encode.value)
+            .isEnableNoiseSuppressor(enableNoiseSuppressor.value)
+            .isEnableAcousticEchoCanceler(enableAutomaticEcho.value)
+            .isEnableAutomaticGainControl(enableAutomaticGain.value)
+        val recorder = binder.createRecorder(builder)
+        volume.postValue(recorder.volume)
+        binder.startRecording()
     }
 
-    fun selectEncoder(entry: AudioRecorder.Encoder) {
+    fun selectEncoder(entry: AudioRecorder.Encode) {
         if (!allowSetting()) return
         viewModelScope.launch {
             BaseApp.instance.dataStore.edit { datas ->

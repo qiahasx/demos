@@ -12,26 +12,38 @@ class RecordService : Service() {
         return binder
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        binder.releaseResources()
+    }
+
     inner class RecordBinder : Binder() {
-        private val recorder = AudioRecorder.Builder().build()
-        val volume
-            get() = recorder.volume
+        private lateinit var recorder: AudioRecorder
         val state
-            get() = recorder.state
+            get() = if (this::recorder.isInitialized) recorder.state else AudioRecorder.RecordState.INIT
+
+        fun createRecorder(build: AudioRecorder.Builder): AudioRecorder {
+            if (this::recorder.isInitialized) return recorder
+            return build.build().also { recorder = it }
+        }
 
         fun startRecording() {
+            if (!this::recorder.isInitialized) return
             recorder.startRecording()
         }
 
         fun stopRecording() {
+            if (!this::recorder.isInitialized) return
             recorder.stopRecording()
         }
 
         fun releaseResources() {
+            if (!this::recorder.isInitialized) return
             recorder.release()
         }
 
         fun resumeRecording() {
+            if (!this::recorder.isInitialized) return
             recorder.resume()
         }
     }
