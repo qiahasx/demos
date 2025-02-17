@@ -19,13 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
 import com.example.common.util.getString
 import com.example.record.AudioRecorder
 import com.example.record.R
 import com.example.record.RecordViewModel
-import com.example.record.RecordViewModel.Companion.KEY_ECHO
-import com.example.record.RecordViewModel.Companion.KEY_GAIN
-import com.example.record.RecordViewModel.Companion.KEY_NOISE
+import com.example.record.RecordViewModel.PreferencesKeys.AUTOMATIC_ECHO
+import com.example.record.RecordViewModel.PreferencesKeys.AUTOMATIC_GAIN
+import com.example.record.RecordViewModel.PreferencesKeys.NOISE_SUPPRESSOR
 
 @Composable
 fun SettingsScreen() {
@@ -37,16 +38,16 @@ fun SettingsScreen() {
         SampleRateSetting()
         ChannelSelection()
         EncoderSelection()
-        AudioFeatureSwitch(KEY_NOISE)
-        AudioFeatureSwitch(KEY_GAIN)
-        AudioFeatureSwitch(KEY_ECHO)
+        AudioFeatureSwitch(NOISE_SUPPRESSOR)
+        AudioFeatureSwitch(AUTOMATIC_GAIN)
+        AudioFeatureSwitch(AUTOMATIC_ECHO)
     }
 }
 
 @Composable
 private fun SampleRateSetting() {
     val viewModel = LocalRecordViewModel.current
-    val sample by viewModel.sample.collectAsState()
+    val sample by viewModel.sampleRate.collectAsState()
     OutlinedTextField(
         value = sample,
         onValueChange = { input ->
@@ -85,16 +86,16 @@ private fun ChannelSelection() {
 }
 
 @Composable
-private fun AudioFeatureSwitch(key: String) {
+private fun AudioFeatureSwitch(key: Preferences.Key<Boolean>) {
     val viewModel = LocalRecordViewModel.current
     val enabled by when (key) {
-        KEY_NOISE -> viewModel.enableNoiseSuppressor.collectAsState()
-        KEY_GAIN -> viewModel.enableAutomaticGain.collectAsState()
+        NOISE_SUPPRESSOR -> viewModel.enableNoiseSuppressor.collectAsState()
+        AUTOMATIC_GAIN -> viewModel.enableAutomaticGain.collectAsState()
         else -> viewModel.enableAutomaticEcho.collectAsState()
     }
     val titleRes = when (key) {
-        KEY_NOISE -> R.string.enable_noise_suppress
-        KEY_GAIN -> R.string.enable_automatic_gain
+        NOISE_SUPPRESSOR -> R.string.enable_noise_suppress
+        AUTOMATIC_GAIN -> R.string.enable_automatic_gain
         else -> R.string.enable_automatic_echo
     }
     SettingsItem(titleRes = titleRes) {

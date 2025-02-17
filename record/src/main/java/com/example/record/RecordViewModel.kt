@@ -1,13 +1,17 @@
 package com.example.record
 
+import androidx.datastore.preferences.core.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.common.BaseApp
+import com.example.common.dataStore
 import com.example.common.util.getString
 import com.example.common.util.toast
-import com.tencent.mmkv.MMKV
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class RecordViewModel : ViewModel() {
@@ -20,16 +24,66 @@ class RecordViewModel : ViewModel() {
             field = value
         }
 
-    val encoder = MutableStateFlow(AudioRecorder.Encoder.entries[MMKV.defaultMMKV().getInt(KEY_ENCODER, 0)])
+    val encoder: StateFlow<AudioRecorder.Encoder> = BaseApp.instance.dataStore.data
+        .map { prefs ->
+            val index = prefs[PreferencesKeys.ENCODER] ?: 0
+            AudioRecorder.Encoder.entries[index]
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = AudioRecorder.Encoder.entries[0]
+        )
+    val sampleRate: StateFlow<String> = BaseApp.instance.dataStore.data
+        .map { prefs ->
+            prefs[PreferencesKeys.SAMPLE_RATE] ?: "48000"
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "48000"
+        )
 
-    val sample = MutableStateFlow(MMKV.defaultMMKV().getString(KEY_SAMPLE, "48000") ?: "48000")
+    val channels: StateFlow<AudioRecorder.Builder.Channel> = BaseApp.instance.dataStore.data
+        .map { prefs ->
+            val index = prefs[PreferencesKeys.CHANNELS] ?: 1
+            AudioRecorder.Builder.Channel.entries.getOrNull(index) ?: AudioRecorder.Builder.Channel.MOMO
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = AudioRecorder.Builder.Channel.MOMO
+        )
 
-    val channels = MutableStateFlow(AudioRecorder.Builder.Channel.entries[MMKV.defaultMMKV().getInt(KEY_CHANNELS, 1)])
+    val enableNoiseSuppressor: StateFlow<Boolean> = BaseApp.instance.dataStore.data
+        .map { prefs ->
+            prefs[PreferencesKeys.NOISE_SUPPRESSOR] ?: true
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
-    val enableNoiseSuppressor = MutableStateFlow(MMKV.defaultMMKV().getBoolean(KEY_NOISE, true))
-    val enableAutomaticGain = MutableStateFlow(MMKV.defaultMMKV().getBoolean(KEY_GAIN, true))
-    val enableAutomaticEcho = MutableStateFlow(MMKV.defaultMMKV().getBoolean(KEY_ECHO, false))
+    val enableAutomaticGain: StateFlow<Boolean> = BaseApp.instance.dataStore.data
+        .map { prefs ->
+            prefs[PreferencesKeys.AUTOMATIC_GAIN] ?: true
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
 
+    val enableAutomaticEcho: StateFlow<Boolean> = BaseApp.instance.dataStore.data
+        .map { prefs ->
+            prefs[PreferencesKeys.AUTOMATIC_ECHO] ?: false
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
     fun toggleRecord() {
         val binder = recordBinder ?: return
         when (binder.state) {
@@ -46,17 +100,40 @@ class RecordViewModel : ViewModel() {
 
     fun selectEncoder(entry: AudioRecorder.Encoder) {
         if (!allowSetting()) return
-        MMKV.defaultMMKV().putInt(KEY_ENCODER, entry.ordinal)
         viewModelScope.launch {
-            encoder.emit(entry)
+            BaseApp.instance.dataStore.edit { datas ->
+                datas[PreferencesKeys.ENCODER] = entry.ordinal
+            }
+        }
+    }
+    fun inputSample(sampleRate: String) {
+        if (!allowSetting()) return
+        viewModelScope.launch {
+            BaseApp.instance.dataStore.edit { prefs ->
+                prefs[PreferencesKeys.SAMPLE_RATE] = sampleRate
+            }
         }
     }
 
-    fun inputSample(sampleRate: String) {
+    fun selectChannels(channel: AudioRecorder.Builder.Channel) {
         if (!allowSetting()) return
-        MMKV.defaultMMKV().putString(KEY_SAMPLE, sampleRate)
         viewModelScope.launch {
-            sample.emit(sampleRate)
+            BaseApp.instance.dataStore.edit { prefs ->
+                prefs[PreferencesKeys.CHANNELS] = channel.ordinal
+            }
+        }
+    }
+
+    fun switchFeature(key: Preferences.Key<Boolean>, newValue: Boolean) {
+        if (!allowSetting()) return
+        viewModelScope.launch {
+            BaseApp.instance.dataStore.edit { prefs ->
+                when (key) {
+                    PreferencesKeys.NOISE_SUPPRESSOR -> prefs[PreferencesKeys.NOISE_SUPPRESSOR] = newValue
+                    PreferencesKeys.AUTOMATIC_GAIN -> prefs[PreferencesKeys.AUTOMATIC_GAIN] = newValue
+                    PreferencesKeys.AUTOMATIC_ECHO -> prefs[PreferencesKeys.AUTOMATIC_ECHO] = newValue
+                }
+            }
         }
     }
 
@@ -68,33 +145,13 @@ class RecordViewModel : ViewModel() {
         return true
     }
 
-    fun selectChannels(channel: AudioRecorder.Builder.Channel) {
-        if (!allowSetting()) return
-        MMKV.defaultMMKV().putInt(KEY_CHANNELS, channel.ordinal)
-        viewModelScope.launch {
-            channels.emit(channel)
-        }
+    object PreferencesKeys {
+        val ENCODER = intPreferencesKey("encoder")
+        val SAMPLE_RATE = stringPreferencesKey("sample_rate")
+        val CHANNELS = intPreferencesKey("channels")
+        val NOISE_SUPPRESSOR = booleanPreferencesKey("noise_suppressor")
+        val AUTOMATIC_GAIN = booleanPreferencesKey("automatic_gain")
+        val AUTOMATIC_ECHO = booleanPreferencesKey("automatic_echo")
     }
 
-    fun switchFeature(key: String, newValue: Boolean) {
-        if (!allowSetting()) return
-        MMKV.defaultMMKV().putBoolean(key, newValue)
-        viewModelScope.launch {
-            when (key) {
-                KEY_NOISE -> enableNoiseSuppressor.emit(newValue)
-                KEY_GAIN -> enableAutomaticGain.emit(newValue)
-                KEY_ECHO -> enableAutomaticEcho.emit(newValue)
-            }
-        }
-
-    }
-
-    companion object {
-        const val KEY_ENCODER = "key_encoder"
-        const val KEY_CHANNELS = "key_Channels"
-        const val KEY_SAMPLE = "key_sample"
-        const val KEY_NOISE = "key_noise"
-        const val KEY_GAIN = "key_gain"
-        const val KEY_ECHO = "key_echo"
-    }
 }
