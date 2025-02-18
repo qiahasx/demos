@@ -8,27 +8,18 @@ import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import com.example.common.BaseApp
-import com.example.common.util.debug
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import com.example.record.encoder.Encoder
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.BufferedOutputStream
 import java.io.File
 import kotlin.math.log10
 
 class AudioRecorder(
     private val sampleRateInHz: Int,
-    private val bitDepth: Int,
-    private val channelCount: Int,
+    private val channel: Builder.Channel,
     private val minBufferSize: Int = 0,
-    val encode: Encode,
+    private val encode: Encode,
     private val audioRecord: AudioRecord,
     private val acousticEchoCanceler: AcousticEchoCanceler?,
     private val automaticGainControl: AutomaticGainControl?,
@@ -37,7 +28,7 @@ class AudioRecorder(
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
     private val recordData = MutableSharedFlow<ShortArray>(extraBufferCapacity = Int.MAX_VALUE)
-    private lateinit var outFile: File
+    private val encoder = Encoder.createInstance(encode, getOutPath(), sampleRateInHz, channel.channelCount, 320_000)
     val volume = MutableStateFlow(0)
     var state: RecordState = RecordState.INIT
         private set
@@ -66,6 +57,7 @@ class AudioRecorder(
 
     fun release() {
         if (state == RecordState.RELEASE) return
+        encoder.release()
         state = RecordState.RELEASE
         job.cancel()
         audioRecord.stop()
@@ -99,25 +91,18 @@ class AudioRecorder(
     }
 
     private fun writeRecordData() {
-        scope.launch {
-            outFile = File(BaseApp.instance.getExternalFilesDir("pcm"), System.currentTimeMillis().toString() + ".pcm")
-            BufferedOutputStream(outFile.outputStream()).use { os ->
-                recordData.collect { buffer ->
-                    withContext(Dispatchers.IO) {
-                        os.write(buffer.asByteArray())
-                    }
-                }
+        scope.launch(Dispatchers.IO) {
+            recordData.collect { buffer ->
+                encoder.encodeChunk(buffer)
             }
         }
     }
 
-    private fun ShortArray.asByteArray(): ByteArray {
-        val bytes = ByteArray(size * 2)
-        this.forEachIndexed { index, value ->
-            bytes[index * 2] = value.toByte()
-            bytes[index * 2 + 1] = (value.toInt() shr 8).toByte()
-        }
-        return bytes
+    private fun getOutPath(): String {
+        val suffix = if (encode == Encode.MP3) "mp3" else "m4a"
+        val outFile =
+            File(BaseApp.instance.getExternalFilesDir(suffix), System.currentTimeMillis().toString() + ".$suffix")
+        return outFile.absolutePath
     }
 
     private fun ShortArray.calculateRMS(): Double {
@@ -241,8 +226,7 @@ class AudioRecorder(
                 }
             return AudioRecorder(
                 sampleRateInHz,
-                audioFormat.value,
-                channelConfig.value,
+                channelConfig,
                 minBufferSize,
                 encode,
                 audioRecord,
@@ -259,7 +243,6 @@ class AudioRecorder(
             if (!AcousticEchoCanceler.isAvailable()) {
                 return
             }
-            debug("handleAcousticEchoCancel")
             acousticEchoCanceler = AcousticEchoCanceler.create(audioSessionId)
             acousticEchoCanceler?.enabled = true
         }
@@ -271,7 +254,6 @@ class AudioRecorder(
             if (!AutomaticGainControl.isAvailable()) {
                 return
             }
-            debug("handleAutomaticGainControl")
             automaticGainControl = AutomaticGainControl.create(audioSessionId)
             automaticGainControl?.enabled = true
         }
@@ -283,22 +265,17 @@ class AudioRecorder(
             if (!NoiseSuppressor.isAvailable()) {
                 return
             }
-            debug("handleNoiseSuppress")
             noiseSuppressor = NoiseSuppressor.create(audioSessionId)
             noiseSuppressor?.enabled = true
-        }
-
-        override fun toString(): String {
-            return "Builder(minBufferSize=$minBufferSize, sampleRateInHz=$sampleRateInHz, audioFormat=$audioFormat, channelConfig=$channelConfig, audioSource=$audioSource, acousticEchoCanceler=$acousticEchoCanceler, automaticGainControl=$automaticGainControl, noiseSuppressor=$noiseSuppressor, addAcousticEchoCanceler=$addAcousticEchoCanceler, addAutomaticGainControl=$addAutomaticGainControl, addNoiseSuppressor=$addNoiseSuppressor, encode=$encode, scope=$scope)"
         }
 
         enum class AudioRecorderFormat(val value: Int) {
             PCM_16BIT(AudioFormat.ENCODING_PCM_16BIT),
         }
 
-        enum class Channel(val value: Int) {
-            MOMO(AudioFormat.CHANNEL_IN_MONO),
-            STEREO(AudioFormat.CHANNEL_IN_STEREO),
+        enum class Channel(val value: Int, val channelCount: Int) {
+            MOMO(AudioFormat.CHANNEL_IN_MONO, 1),
+            STEREO(AudioFormat.CHANNEL_IN_STEREO, 2),
         }
 
         enum class AudioRecorderSource(val value: Int) {
@@ -314,6 +291,6 @@ class AudioRecorder(
     }
 
     enum class Encode {
-        MP3, AAC, AAC_HC
+        MP3, AAC, AAC_HW
     }
 }

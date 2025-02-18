@@ -16,7 +16,9 @@ class SettingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         bindService(Intent(this, RecordService::class.java), object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                recordViewModel.recordBinder = service as? RecordService.RecordBinder
+                val recordBinder = (service as? RecordService.RecordBinder) ?: return
+                recordViewModel.recordBinder = recordBinder
+                recordViewModel.volume.postValue(recordBinder.volume)
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {

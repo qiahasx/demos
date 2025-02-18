@@ -5,8 +5,6 @@
 
 class LameEncoder {
 private:
-    static const int DEFAULT_BUFFER_SIZE = 1024 * 256;
-
     FILE* outputFile = nullptr;
     lame_t lameClient = nullptr;
     int bufferSize = 1024 * 256;
@@ -52,7 +50,7 @@ public:
                     lameClient,
                     pcmData,
                     nullptr,
-                    sampleCount / 2,
+                    sampleCount,
                     mp3Buffer,
                     bufferSize
             );
@@ -75,7 +73,6 @@ public:
     int channelCount;
 };
 
-// JNI接口封装
 extern "C" JNIEXPORT jlong JNICALL
 Java_com_example_lame_LameEncoder_createEncoder(
         JNIEnv* env, jobject thiz,
@@ -106,7 +103,6 @@ Java_com_example_lame_LameEncoder_encodeChunk(
     jshort* data = env->GetShortArrayElements(pcmData, nullptr);
     bool success = encoder->encodeChunk(data, length / encoder->channelCount);
     env->ReleaseShortArrayElements(pcmData, data, JNI_ABORT);
-    A
     return success ? JNI_TRUE : JNI_FALSE;;
 }
 

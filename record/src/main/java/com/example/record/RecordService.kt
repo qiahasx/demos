@@ -18,33 +18,32 @@ class RecordService : Service() {
     }
 
     inner class RecordBinder : Binder() {
-        private lateinit var recorder: AudioRecorder
+        private var recorder: AudioRecorder? = null
+        val volume
+            get() = recorder?.volume
         val state
-            get() = if (this::recorder.isInitialized) recorder.state else AudioRecorder.RecordState.INIT
+            get() = recorder?.state ?: AudioRecorder.RecordState.INIT
 
         fun createRecorder(build: AudioRecorder.Builder): AudioRecorder {
-            if (this::recorder.isInitialized) return recorder
+            val audioRecorder = recorder
+            if (audioRecorder != null) return audioRecorder
             return build.build().also { recorder = it }
         }
 
         fun startRecording() {
-            if (!this::recorder.isInitialized) return
-            recorder.startRecording()
+            recorder?.startRecording()
         }
 
         fun stopRecording() {
-            if (!this::recorder.isInitialized) return
-            recorder.stopRecording()
+            recorder?.stopRecording()
         }
 
         fun releaseResources() {
-            if (!this::recorder.isInitialized) return
-            recorder.release()
+            recorder?.release()
         }
 
         fun resumeRecording() {
-            if (!this::recorder.isInitialized) return
-            recorder.resume()
+            recorder?.resume()
         }
     }
 }
