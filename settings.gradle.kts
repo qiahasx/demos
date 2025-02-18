@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "openGl"
+rootProject.name = "demo"
 include(":opengl")
 include(":app")
 include(":common")
