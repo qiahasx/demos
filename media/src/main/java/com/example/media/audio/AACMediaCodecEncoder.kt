@@ -9,9 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * 音频编码，封装
+ * 使用MediaCodec将音频编码成aac格式，封装
  */
-class AACEncoder(
+class AACMediaCodecEncoder(
     outPutPath: String,
     private val sampleRate: Int,
     private val channelCount: Int,
