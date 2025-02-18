@@ -2,9 +2,10 @@ package com.example.syncplayer.audio
 
 import android.media.MediaCodec
 import android.media.MediaCodec.BufferInfo
-import android.media.MediaExtractor
 import android.media.MediaFormat
-import com.example.syncplayer.util.launchIO
+import com.example.common.util.launchIO
+import com.example.media.audio.AudioExtractor
+import com.example.media.audio.ShortsInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -17,29 +18,14 @@ class AudioDecoder(
 ) {
     val audioInfo: AudioInfo
     var queue = BlockQueue<ShortsInfo>(BUFFER_MAX)
-    private var trackIndex: Int = -1
     private val decoder: MediaCodec
-    private val extractor = MediaExtractor()
+    private val extractor = AudioExtractor(filePath)
     private var decodeJob: Job? = null
     private var state = State.Init
 
     init {
-        extractor.setDataSource(filePath)
-        var type = ""
-        for (i in 0 until extractor.trackCount) {
-            val format = extractor.getTrackFormat(i)
-            val mime = format.getString(MediaFormat.KEY_MIME)
-            if (mime != null && mime.startsWith("audio/")) {
-                trackIndex = i
-                type = mime
-                extractor.selectTrack(trackIndex)
-                break
-            }
-        }
-        if (trackIndex < 0) {
-            throw IllegalStateException("extractor not found audio track")
-        }
-        val format = extractor.getTrackFormat(trackIndex)
+        val format = extractor.format
+        val type = extractor.format.getString(MediaFormat.KEY_MIME) ?: ""
         audioInfo = AudioInfo.createInfo(filePath, format)
         decoder = MediaCodec.createDecoderByType(type)
         decoder.configure(format, null, null, 0)
@@ -56,7 +42,7 @@ class AudioDecoder(
         queue.clear()
         decoder.flush()
         val progress = timeUs.coerceAtLeast(0).coerceAtMost(audioInfo.duration)
-        extractor.seekTo(progress, MediaExtractor.SEEK_TO_PREVIOUS_SYNC)
+        extractor.seekTo(progress)
         if (progress == audioInfo.duration) {
             val shortsInfo = ShortsInfo(ShortArray(0), 0, 0, audioInfo.duration, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
             queue.produce(shortsInfo)

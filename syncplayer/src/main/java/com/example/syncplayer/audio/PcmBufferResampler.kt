@@ -1,16 +1,13 @@
 package com.example.syncplayer.audio
 
 import android.media.MediaCodec.BUFFER_FLAG_END_OF_STREAM
-import com.example.syncplayer.audio.resample.JniReSampler
-import com.example.syncplayer.audio.resample.LinearReSampler
-import com.example.syncplayer.audio.resample.MonoToStereoReSampler
-import com.example.syncplayer.audio.resample.ReSampler
-import com.example.syncplayer.audio.resample.StereoToMonoReSampler
-import com.example.syncplayer.audio.resample.getIsUseJniResample
+import com.example.media.audio.PcmBufferProvider
+import com.example.media.audio.ShortsInfo
+import com.example.syncplayer.audio.resample.*
 
-class PcmBufferProcessor(
+class PcmBufferResampler(
     private val pcmData: BlockQueue<ShortsInfo>,
-) {
+) : PcmBufferProvider {
     private var cache: ShortsInfo? = null
     private val shortsInfo = ShortsInfo(ShortArray(0))
     private var reSamplers = mutableListOf<ReSampler>()
@@ -44,7 +41,7 @@ class PcmBufferProcessor(
         reSamplers.add(reSampler)
     }
 
-    suspend fun getBuffer(size: Int): ShortsInfo {
+    override suspend fun getBuffer(size: Int): ShortsInfo {
         val shorts = ShortArray(size) { getNext(shortsInfo) }
         return ShortsInfo(shorts, 0, size, shortsInfo.sampleTime, shortsInfo.flags)
     }
@@ -77,7 +74,7 @@ class PcmBufferProcessor(
         return currentPcmData
     }
 
-    fun release() {
+    override fun release() {
         clearCache()
         reSamplers.forEach { it.release() }
     }

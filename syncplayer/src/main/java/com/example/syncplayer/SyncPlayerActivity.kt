@@ -9,9 +9,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
+import com.example.common.util.launchMain
 import com.example.syncplayer.ui.NavGraph
 import com.example.syncplayer.ui.dialog.TextInfoDialogController
-import com.example.syncplayer.util.launchMain
 import com.example.syncplayer.viewModel.DialogManager
 import com.example.syncplayer.viewModel.MainViewModel
 import com.example.syncplayer.viewModel.MainViewModel.Companion.AUDIO_PATH

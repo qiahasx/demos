@@ -7,7 +7,7 @@ class AudioCovert(
     private var targetSampleRate = getInputFormat().sampleRate
     private var targetChannels = if (audioDecoder.audioInfo.channelCount > 1) AudioTranscoder.Channels.Stereo
     else AudioTranscoder.Channels.Mono
-    private val processor = PcmBufferProcessor(audioDecoder.queue)
+    private val processor = PcmBufferResampler(audioDecoder.queue)
 
     suspend fun getBuffer(size: Int = bufferSize) = processor.getBuffer(size)
 

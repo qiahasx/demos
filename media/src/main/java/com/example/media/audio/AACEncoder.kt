@@ -1,55 +1,46 @@
-package com.example.syncplayer.audio
+package com.example.media.audio
 
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import com.example.syncplayer.util.launchIO
+import com.example.common.util.launchIO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * 音频编码，封装
  */
-class AudioEncoder(
-    private val inputInfo: AudioInfo,
+class AACEncoder(
+    outPutPath: String,
+    private val sampleRate: Int,
+    private val channelCount: Int,
+    private val bitRate: Int,
     private val scope: CoroutineScope,
 ) {
     val sampleTime = MutableStateFlow<Long>(0)
     private var state = State.Init
-    private val codec = MediaCodec.createEncoderByType(inputInfo.mime)
-    private val muxer = MediaMuxer(
-        inputInfo.filePath.substringBeforeLast(".") + "_${System.currentTimeMillis()}.m4a",
-        MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
-    )
+    private val codec = MediaCodec.createEncoderByType("audio/mp4a-latm")
+    private val muxer = MediaMuxer(outPutPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
     private var muxerTrackIndex = 0
     private val tempInfo = MediaCodec.BufferInfo()
-    private var processor: PcmBufferProcessor? = null
+    private var provider: PcmBufferProvider? = null
     private var isEndOfStreamReached = false
     private var isEndOfEncoded = false
     private val format = MediaFormat().apply {
         setString(MediaFormat.KEY_MIME, MediaFormat.MIMETYPE_AUDIO_AAC)
         setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectMain)
-        setInteger(MediaFormat.KEY_SAMPLE_RATE, inputInfo.sampleRate)
-        setInteger(MediaFormat.KEY_CHANNEL_COUNT, inputInfo.channelCount)
-        setInteger(MediaFormat.KEY_BIT_RATE, inputInfo.bitRate)
+        setInteger(MediaFormat.KEY_SAMPLE_RATE, sampleRate)
+        setInteger(MediaFormat.KEY_CHANNEL_COUNT, channelCount)
+        setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
         setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 1024 * 256)
     }
 
-    fun setPcmData(data: BlockQueue<ShortsInfo>) {
-        processor = PcmBufferProcessor(data)
-    }
-
-    fun setOutPutFormat(sampleRate: Int, channelNum: AudioTranscoder.Channels) {
-        format.setInteger(MediaFormat.KEY_SAMPLE_RATE, sampleRate)
-        format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, channelNum.value)
+    fun setPcmData(provider: PcmBufferProvider) {
+        this.provider = provider
     }
 
     fun start() {
-        val processor = processor ?: error("Not Set PcmData")
-        val targetSampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE)
-        val targetChannelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
-        processor.addReSampler(inputInfo.channelCount, targetChannelCount, inputInfo.sampleRate, targetSampleRate)
         codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         codec.start()
         scope.launchIO {
@@ -83,7 +74,7 @@ class AudioEncoder(
     }
 
     private suspend fun submitPcmToCodec() {
-        val processor = processor ?: error("Not Set PcmData")
+        val processor = provider ?: error("Not Set PcmData")
         if (isEndOfStreamReached) return
         val index = codec.dequeueInputBuffer(0)
         if (index < 0) return
@@ -100,7 +91,7 @@ class AudioEncoder(
 
     fun release() {
         if (state != State.Running) return
-        processor?.release()
+        provider?.release()
         codec.stop()
         codec.release()
         muxer.stop()

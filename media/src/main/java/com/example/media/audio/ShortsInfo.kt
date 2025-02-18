@@ -1,4 +1,4 @@
-package com.example.syncplayer.audio
+package com.example.media.audio
 
 import android.media.MediaCodec
 import java.nio.ByteBuffer

@@ -1,7 +1,7 @@
 package com.example.syncplayer.audio.resample
 
+import com.example.media.audio.ShortsInfo
 import com.example.syncplayer.audio.AudioTranscoder
-import com.example.syncplayer.audio.ShortsInfo
 
 class LinearReSampler(
     private val oldRate: Int,

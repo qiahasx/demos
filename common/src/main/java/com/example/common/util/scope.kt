@@ -1,12 +1,8 @@
-package com.example.syncplayer.util
+package com.example.common.util
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 fun CoroutineScope.launchIO(
     consumeException: Boolean = false,

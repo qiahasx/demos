@@ -1,6 +1,6 @@
 package com.example.syncplayer.audio.resample
 
-import com.example.syncplayer.audio.ShortsInfo
+import com.example.media.audio.ShortsInfo
 
 /**
  * 调用libsamplerate音频重采样 确实感觉比我自己写的线性插值转换效果好

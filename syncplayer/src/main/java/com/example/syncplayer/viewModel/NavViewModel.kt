@@ -2,7 +2,7 @@ package com.example.syncplayer.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.syncplayer.util.launchIO
+import com.example.common.util.launchIO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 

@@ -4,8 +4,8 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import com.example.syncplayer.util.launchIO
-import com.example.syncplayer.util.withIO
+import com.example.common.util.launchIO
+import com.example.common.util.withIO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

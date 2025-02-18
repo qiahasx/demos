@@ -12,7 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityOptionsCompat
 import com.example.common.util.checkPermission
-import com.example.common.util.debug
 import com.example.common.util.toast
 import com.example.record.ui.MainLayout
 
@@ -30,7 +29,6 @@ class RecordActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        debug("reccord")
         bindService(
             Intent(this, RecordService::class.java),
             object : ServiceConnection {

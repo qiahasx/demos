@@ -1,7 +1,8 @@
 package com.example.syncplayer.audio
 
+import com.example.common.util.launchIO
+import com.example.media.audio.AACEncoder
 import com.example.syncplayer.model.AudioItem
-import com.example.syncplayer.util.launchIO
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -14,7 +15,7 @@ class AudioTranscoder(
 ) {
     val progress = MutableStateFlow(0f)
     private val decoder = AudioDecoder(scope, item.filePath)
-    private lateinit var encoder: AudioEncoder
+    private lateinit var encoder: AACEncoder
     private var targetSampleRate = decoder.audioInfo.sampleRate
     private var targetChannels = if (decoder.audioInfo.channelCount > 1) Channels.Stereo else Channels.Mono
 
@@ -33,9 +34,12 @@ class AudioTranscoder(
     }
 
     fun start() {
-        encoder = AudioEncoder(decoder.audioInfo, scope)
-        encoder.setOutPutFormat(targetSampleRate, targetChannels)
-        encoder.setPcmData(decoder.queue)
+        val inputInfo = decoder.audioInfo
+        val path = inputInfo.filePath.substringBeforeLast(".") + "_${System.currentTimeMillis()}.m4a"
+        encoder = AACEncoder(path, targetSampleRate, targetChannels.value, inputInfo.bitRate, scope)
+        val resample = PcmBufferResampler(decoder.queue)
+        resample.addReSampler(inputInfo.channelCount, targetChannels.value, inputInfo.sampleRate, targetSampleRate)
+        encoder.setPcmData(resample)
         decoder.start()
         encoder.start()
         startCalculateProgress()

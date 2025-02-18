@@ -1,6 +1,6 @@
 package com.example.syncplayer.audio.resample
 
-import com.example.syncplayer.audio.ShortsInfo
+import com.example.media.audio.ShortsInfo
 
 class MonoToStereoReSampler : ReSampler {
     override fun reSampler(pcmData: ShortsInfo): ShortsInfo {
