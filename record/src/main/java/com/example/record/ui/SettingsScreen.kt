@@ -1,5 +1,6 @@
 package com.example.record.ui
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -7,19 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +32,7 @@ fun SettingsScreen() {
             .verticalScroll(rememberScrollState())
             .padding(vertical = 6.dp)
     ) {
+        BitRateSetting()
         SampleRateSetting()
         val modifier = Modifier
             .align(Alignment.End)
@@ -54,17 +45,48 @@ fun SettingsScreen() {
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
+@Composable
+private fun BitRateSetting() {
+    val viewModel = LocalRecordViewModel.current
+    AudioParamText(
+        viewModel.bitRate.value,
+        "Bit Rate (/bps)"
+    ) {
+        viewModel.inputBitRate(it)
+    }
+}
+
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 private fun SampleRateSetting() {
     val viewModel = LocalRecordViewModel.current
-    val sample by viewModel.sampleRate.collectAsState()
+    AudioParamText(
+        viewModel.sampleRate.value,
+        "Sample Rate (/Hz)"
+    ) {
+        viewModel.inputSampleRate(it)
+    }
+}
+
+@Composable
+fun AudioParamText(
+    initValue: String?,
+    label: String,
+    onValueChange: (String) -> Unit
+) {
+    val viewModel = LocalRecordViewModel.current
+    var bitRate by remember { mutableStateOf(initValue ?: "") }
     OutlinedTextField(
-        value = sample,
+        value = bitRate,
         onValueChange = { input ->
-            val newValue = if (input.isEmpty()) "" else input.toIntOrNull()?.toString() ?: return@OutlinedTextField
-            viewModel.inputSample(newValue)
+            if (!viewModel.allowSetting()) return@OutlinedTextField
+            val filtered = input.filter { it.isDigit() }
+            val validated = filtered.ifEmpty { "" }
+            bitRate = validated
+            onValueChange.invoke(validated)
         },
-        label = { Text("Sample Rate") },
+        label = { Text(label) },
         colors = TextFieldDefaults.colors().copy(
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White,

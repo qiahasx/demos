@@ -16,8 +16,9 @@ import java.io.File
 import kotlin.math.log10
 
 class AudioRecorder(
-    private val sampleRateInHz: Int,
-    private val channel: Builder.Channel,
+    sampleRateInHz: Int,
+    channel: Builder.Channel,
+    bitRate: Int,
     private val minBufferSize: Int = 0,
     private val encode: Encode,
     private val audioRecord: AudioRecord,
@@ -25,13 +26,20 @@ class AudioRecorder(
     private val automaticGainControl: AutomaticGainControl?,
     private val noiseSuppressor: NoiseSuppressor?,
 ) {
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
-    private val recordData = MutableSharedFlow<ShortArray>(extraBufferCapacity = Int.MAX_VALUE)
-    private val encoder = Encoder.createInstance(encode, getOutPath(), sampleRateInHz, channel.channelCount, 320_000)
+    val outPath = kotlin.run {
+        val suffix = if (encode == Encode.MP3) "mp3" else "m4a"
+        val outFile =
+            File(BaseApp.instance.getExternalFilesDir(suffix), System.currentTimeMillis().toString() + ".$suffix")
+        outFile.absolutePath
+    }
     val volume = MutableStateFlow(0)
     var state: RecordState = RecordState.INIT
         private set
+
+    private val job = Job()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+    private val recordData = MutableSharedFlow<ShortArray>(extraBufferCapacity = Int.MAX_VALUE)
+    private val encoder = Encoder.createInstance(encode, outPath, sampleRateInHz, channel.channelCount, bitRate)
 
     fun startRecording() {
         if (audioRecord.state == AudioRecord.STATE_UNINITIALIZED) return
@@ -98,13 +106,6 @@ class AudioRecorder(
         }
     }
 
-    private fun getOutPath(): String {
-        val suffix = if (encode == Encode.MP3) "mp3" else "m4a"
-        val outFile =
-            File(BaseApp.instance.getExternalFilesDir(suffix), System.currentTimeMillis().toString() + ".$suffix")
-        return outFile.absolutePath
-    }
-
     private fun ShortArray.calculateRMS(): Double {
         var sum = 0.0
         for (sample in this) {
@@ -115,8 +116,9 @@ class AudioRecorder(
     }
 
     class Builder {
+        private var bitRate: Int = 320_000
         private var minBufferSize: Int = 0
-        private var sampleRateInHz: Int = 44100
+        private var sampleRateInHz: Int = 48000
         private var audioFormat = AudioRecorderFormat.PCM_16BIT
         private var channelConfig = Channel.STEREO
         private var audioSource: AudioRecorderSource = AudioRecorderSource.MIC
@@ -204,6 +206,12 @@ class AudioRecorder(
             return this
         }
 
+
+        fun setBitRate(value: Int): Builder {
+            bitRate = value
+            return this
+        }
+
         @SuppressLint("MissingPermission")
         fun build(): AudioRecorder {
             minBufferSize =
@@ -227,6 +235,7 @@ class AudioRecorder(
             return AudioRecorder(
                 sampleRateInHz,
                 channelConfig,
+                bitRate,
                 minBufferSize,
                 encode,
                 audioRecord,

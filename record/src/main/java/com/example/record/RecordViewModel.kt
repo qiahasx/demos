@@ -1,10 +1,6 @@
 package com.example.record
 
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,6 +18,9 @@ class RecordViewModel : ViewModel() {
     val state: AudioRecorder.RecordState
         get() = recordBinder?.state ?: AudioRecorder.RecordState.INIT
     var recordBinder: RecordService.RecordBinder? = null
+
+    private val _bitRate = MutableStateFlow("320000")
+    val bitRate: StateFlow<String> = _bitRate
 
     private val _sampleRate = MutableStateFlow("48000")
     val sampleRate: StateFlow<String> = _sampleRate
@@ -46,6 +45,8 @@ class RecordViewModel : ViewModel() {
             BaseApp.instance.dataStore.data.collect { prefs ->
                 val sampleRateValue = prefs[PreferencesKeys.SAMPLE_RATE] ?: "48000"
                 _sampleRate.emit(sampleRateValue)
+                val bitRareValue = prefs[PreferencesKeys.BIT_RATE] ?: "320000"
+                _bitRate.emit(bitRareValue)
                 val encodeIndex = prefs[PreferencesKeys.ENCODER] ?: 0
                 _encode.emit(AudioRecorder.Encode.entries[encodeIndex])
                 val channelIndex = prefs[PreferencesKeys.CHANNELS] ?: 1
@@ -79,6 +80,7 @@ class RecordViewModel : ViewModel() {
     private fun startRecording() {
         val binder = recordBinder ?: return
         val builder = AudioRecorder.Builder()
+            .setBitRate(bitRate.value.toInt())
             .setChannelConfig(channels.value)
             .setSampleRateInHz(sampleRate.value.toInt())
             .setEncode(encode.value)
@@ -98,11 +100,21 @@ class RecordViewModel : ViewModel() {
             }
         }
     }
-    fun inputSample(sampleRate: String) {
+
+    fun inputSampleRate(sampleRate: String) {
         if (!allowSetting()) return
         viewModelScope.launch {
             BaseApp.instance.dataStore.edit { prefs ->
                 prefs[PreferencesKeys.SAMPLE_RATE] = sampleRate
+            }
+        }
+    }
+
+    fun inputBitRate(bitRate: String) {
+        if (!allowSetting()) return
+        viewModelScope.launch {
+            BaseApp.instance.dataStore.edit { prefs ->
+                prefs[PreferencesKeys.BIT_RATE] = bitRate
             }
         }
     }
@@ -129,7 +141,7 @@ class RecordViewModel : ViewModel() {
         }
     }
 
-    private fun allowSetting(): Boolean {
+    fun allowSetting(): Boolean {
         if (state != AudioRecorder.RecordState.INIT) {
             toast(getString(R.string.please_before_start))
             return false
@@ -140,6 +152,7 @@ class RecordViewModel : ViewModel() {
     object PreferencesKeys {
         val ENCODER = intPreferencesKey("encoder")
         val SAMPLE_RATE = stringPreferencesKey("sample_rate")
+        val BIT_RATE = stringPreferencesKey("bit_rate")
         val CHANNELS = intPreferencesKey("channels")
         val NOISE_SUPPRESSOR = booleanPreferencesKey("noise_suppressor")
         val AUTOMATIC_GAIN = booleanPreferencesKey("automatic_gain")
