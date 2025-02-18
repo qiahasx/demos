@@ -10,12 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +38,7 @@ class MainActivity : ComponentActivity() {
         ButtonItemBean(com.example.syncplayer.R.string.sync_player, com.example.syncplayer.R.string.sync_player_info) { _, _ ->
             startActivity(SyncPlayerActivity::class.java)
         },
-        ButtonItemBean(com.example.syncplayer.R.string.sync_player, com.example.syncplayer.R.string.sync_player_info) { _, _ ->
+        ButtonItemBean(R.string.recorder_demo, R.string.recorder_demo_info) { _, _ ->
             startActivity(RecordActivity::class.java)
         }
     )

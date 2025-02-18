@@ -291,6 +291,6 @@ class AudioRecorder(
     }
 
     enum class Encode {
-        MP3, AAC, AAC_HW
+        MP3, AAC_HW
     }
 }

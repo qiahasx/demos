@@ -17,7 +17,6 @@ interface Encoder {
         ): Encoder {
             return when (encode) {
                 AudioRecorder.Encode.MP3 -> Mp3Encoder(outPutPath, sampleRate, channelCount, bitRate)
-                AudioRecorder.Encode.AAC -> Mp3Encoder(outPutPath, sampleRate, channelCount, bitRate)
                 AudioRecorder.Encode.AAC_HW -> AACHardwareEncoder(outPutPath, sampleRate, channelCount, bitRate)
             }
         }

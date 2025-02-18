@@ -5,4 +5,11 @@
     1. 绘制可以简单根据用户触摸旋转的彩色立方体\n
     2. 绘制简单图元\n
     3. 绘制不同的转场动画</string>
+    <string name="recorder_demo">Recorder Demo</string>
+    <string name="recorder_demo_info">
+        对AudioRecorder的封装 实现:\n
+        1.获得原始pcm数据后，计算出分贝参考值\n
+        2.通过分贝值展示一个动画\n
+        3.通过MediaCodec编码成aac或者是Lame编码成mp3
+    </string>
 </resources>

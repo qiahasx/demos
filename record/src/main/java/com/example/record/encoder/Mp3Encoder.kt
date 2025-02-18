@@ -10,15 +10,16 @@ class Mp3Encoder(
 ) : Encoder {
     private val encoder = LameEncoder()
     private val ptr = encoder.createEncoder(outPutPath, sampleRate, channelCount, bitRate)
-    private val state = State.RUNNING
+    private var state = State.RUNNING
 
     override fun release() {
         require(state == State.RUNNING)
         encoder.releaseEncoder(ptr)
+        state = State.RELEASE
     }
 
     override fun encodeChunk(pcmData: ShortArray) {
-        require(state == State.RELEASE)
+        require(state == State.RUNNING)
         encoder.encodeChunk(ptr, pcmData)
     }
 
