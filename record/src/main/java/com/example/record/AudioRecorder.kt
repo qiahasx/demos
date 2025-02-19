@@ -9,9 +9,15 @@ import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import com.example.common.BaseApp
 import com.example.record.encoder.Encoder
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.log10
 
@@ -19,6 +25,7 @@ class AudioRecorder(
     sampleRateInHz: Int,
     channel: Builder.Channel,
     bitRate: Int,
+    parentScope: CoroutineScope,
     private val minBufferSize: Int = 0,
     private val encode: Encode,
     private val audioRecord: AudioRecord,
@@ -26,7 +33,7 @@ class AudioRecorder(
     private val automaticGainControl: AutomaticGainControl?,
     private val noiseSuppressor: NoiseSuppressor?,
 ) {
-    val outPath = kotlin.run {
+    val outPath: String = kotlin.run {
         val suffix = if (encode == Encode.MP3) "mp3" else "m4a"
         val outFile =
             File(BaseApp.instance.getExternalFilesDir(suffix), System.currentTimeMillis().toString() + ".$suffix")
@@ -36,7 +43,7 @@ class AudioRecorder(
     var state: RecordState = RecordState.INIT
         private set
 
-    private val job = Job()
+    private val job = Job(parentScope.coroutineContext[Job])
     private val scope = CoroutineScope(Dispatchers.IO + job)
     private val recordData = MutableSharedFlow<ShortArray>(extraBufferCapacity = Int.MAX_VALUE)
     private val encoder = Encoder.createInstance(encode, outPath, sampleRateInHz, channel.channelCount, bitRate)
@@ -99,7 +106,7 @@ class AudioRecorder(
     }
 
     private fun writeRecordData() {
-        scope.launch(Dispatchers.IO) {
+        scope.launch {
             recordData.collect { buffer ->
                 encoder.encodeChunk(buffer)
             }
@@ -236,6 +243,7 @@ class AudioRecorder(
                 sampleRateInHz,
                 channelConfig,
                 bitRate,
+                scope,
                 minBufferSize,
                 encode,
                 audioRecord,

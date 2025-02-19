@@ -1,6 +1,10 @@
 package com.example.record
 
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -84,6 +88,7 @@ class RecordViewModel : ViewModel() {
             .setChannelConfig(channels.value)
             .setSampleRateInHz(sampleRate.value.toInt())
             .setEncode(encode.value)
+            .setScope(viewModelScope)
             .isEnableNoiseSuppressor(enableNoiseSuppressor.value)
             .isEnableAcousticEchoCanceler(enableAutomaticEcho.value)
             .isEnableAutomaticGainControl(enableAutomaticGain.value)

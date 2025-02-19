@@ -15,6 +15,7 @@ import com.example.common.util.getColor
 import com.example.record.R
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.ceil
+import kotlin.math.max
 
 class SoundWaveView(context: Context) : View(context) {
     private var volume : StateFlow<Int>? = null
@@ -23,7 +24,7 @@ class SoundWaveView(context: Context) : View(context) {
     private val textPaint = Paint().apply {
         color = Color.GRAY
     }
-    private var barColor = BarColor.GREEN
+    private var barColor = BarColor.YELLOW
     private val minDb = 0
     private val maxDb = 120
     private val warningDb = 80
@@ -31,7 +32,7 @@ class SoundWaveView(context: Context) : View(context) {
     private val barNum = ceil((maxDb - minDb) / barValue).toInt()
     private val warningBarIndex = ceil((warningDb - minDb) / barValue).toInt()
 
-    private var currentDb = minDb
+    private var currentDb = 100
         set(value) {
             field = value
             invalidate()
@@ -41,9 +42,9 @@ class SoundWaveView(context: Context) : View(context) {
      * 在onSizeChanged 中计算具体的值
      */
     private var barWidth = 0f
+    private var margin = 0f
     private val barAspectRatio = 2f
     private val barWeight = 0.7f
-    private var margin = 0f
     private val bigScale = 2
     private val barRadius
         get() = barWidth / 3
@@ -72,7 +73,7 @@ class SoundWaveView(context: Context) : View(context) {
     }
 
     private fun startAnimator() {
-        val targetDb = (volume?.value ?: 0).clamp()
+        val targetDb = (volume?.value ?: minDb).clamp()
         barColor = if (targetDb > warningDb) {
             BarColor.YELLOW
         } else {
@@ -98,15 +99,16 @@ class SoundWaveView(context: Context) : View(context) {
     }
 
     private fun drawLabel(canvas: Canvas) {
-        canvas.drawText(minDb.toString(), margin, paddingRect.height().toFloat(), textPaint)
+        val textY = paddingRect.height().toFloat() - textPaint.fontMetrics.descent
+        canvas.drawText(minDb.toString(), margin, textY, textPaint)
 
         val warningDbWith = textPaint.measureText(warningDb.toString())
         val warningDbStart = (warningBarIndex + 1) * (margin + barWidth) - warningDbWith / 2 - barWidth / 2
-        canvas.drawText(warningDb.toString(), warningDbStart, paddingRect.height().toFloat(), textPaint)
+        canvas.drawText(warningDb.toString(), warningDbStart, textY, textPaint)
 
         val maxDbWith = textPaint.measureText(maxDb.toString())
         val maxDbStart = paddingRect.width() - margin - maxDbWith
-        canvas.drawText(maxDb.toString(), maxDbStart, paddingRect.height().toFloat(), textPaint)
+        canvas.drawText(maxDb.toString(), maxDbStart, textY, textPaint)
     }
 
     private fun drawBar(canvas: Canvas, color: BarColor, @IntRange(0, 120) db: Int) {
@@ -116,7 +118,8 @@ class SoundWaveView(context: Context) : View(context) {
         val maxWidth = ceil((db - minDb) / barValue) * margin + (db - minDb) / barValue * barWidth
         canvas.clipRect(0, 0, maxWidth.toInt(), height)
         var xOffset = margin
-        for (i in 0 until barNum) {
+        val barCount = ((db + barValue) / barValue).toInt()
+        for (i in 0 until max(barCount, barNum)) {
             if (xOffset + (barWidth + margin) * 2 > maxWidth) {
                 barPaint.color = getColor(color.lightColor)
             }
@@ -140,8 +143,7 @@ class SoundWaveView(context: Context) : View(context) {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val targetWidth = resources.displayMetrics.widthPixels
-        val width = resolveSize(targetWidth, widthMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasureSpec)
         val maxBarWidth = (width - (paddingLeft + paddingRight)) * barWeight / barNum * bigScale
         val maxBarHeight = maxBarWidth * barAspectRatio
         val targetHeight = maxBarHeight + labelHeight + labelPadding + (paddingTop + paddingBottom)
