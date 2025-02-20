@@ -30,7 +30,6 @@ class AudioTranscoder(
 
     fun release() {
         decoder.release()
-        if (this::encoder.isInitialized) encoder.release()
     }
 
     fun start() {
@@ -47,7 +46,7 @@ class AudioTranscoder(
 
     private fun startCalculateProgress() {
         scope.launchIO {
-            encoder.sampleTime.collect {
+            encoder.progress.collect {
                 progress.emit(it / decoder.audioInfo.duration.toFloat())
             }
         }

@@ -5,7 +5,7 @@ import com.example.media.audio.BaseChunkBufferProvider
 import com.example.media.audio.ShortsInfo
 import kotlinx.coroutines.channels.Channel
 
-class AudioChunkDispatcher : BaseChunkBufferProvider() {
+class AudioChunkProvider : BaseChunkBufferProvider() {
     private val channel = Channel<ShortsInfo>(Int.MAX_VALUE)
 
     fun send(shortsInfo: ShortsInfo) {
@@ -13,10 +13,13 @@ class AudioChunkDispatcher : BaseChunkBufferProvider() {
     }
 
     override suspend fun fetchNextRawChunk(): ShortsInfo? {
-        return channel.receive().takeUnless { it.flags == BUFFER_FLAG_END_OF_STREAM }
+        val shortsInfo = channel.receive().takeUnless { it.flags == BUFFER_FLAG_END_OF_STREAM }
+        if (shortsInfo == null) channel.cancel()
+        return shortsInfo
     }
 
     override fun onChunkReleased() {
-        channel.cancel()
+        channel.trySend(ShortsInfo(ShortArray(0), flags = BUFFER_FLAG_END_OF_STREAM))
     }
 }
+

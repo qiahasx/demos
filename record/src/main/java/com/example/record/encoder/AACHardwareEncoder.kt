@@ -1,6 +1,5 @@
 package com.example.record.encoder
 
-import android.media.MediaCodec
 import com.example.media.audio.AACMediaCodecEncoder
 import com.example.media.audio.ShortsInfo
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -13,7 +12,7 @@ class AACHardwareEncoder(
     channelCount: Int,
     bitRate: Int,
 ) : Encoder {
-    private val provider = AudioChunkDispatcher()
+    private val provider = AudioChunkProvider()
 
     @OptIn(DelicateCoroutinesApi::class)
     private val encoder = AACMediaCodecEncoder(outPutPath, sampleRate, channelCount, bitRate, GlobalScope)
@@ -26,8 +25,7 @@ class AACHardwareEncoder(
     }
 
     override fun release() {
-        val endInfo = ShortsInfo(ShortArray(0), 0, 0, getSampleTime(), MediaCodec.BUFFER_FLAG_END_OF_STREAM)
-        provider.send(endInfo)
+        provider.release()
     }
 
     override fun encodeChunk(pcmData: ShortArray) {

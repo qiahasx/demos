@@ -4,7 +4,7 @@ import android.media.MediaCodec.BUFFER_FLAG_END_OF_STREAM
 
 abstract class BaseChunkBufferProvider : PcmBufferProvider {
     private var currentChunk: ShortsInfo? = null
-    private val info = ShortsInfo(ShortArray(0))
+    private var sampleTime = 0L
 
     protected abstract suspend fun fetchNextRawChunk(): ShortsInfo?
     protected abstract fun onChunkReleased()
@@ -16,6 +16,7 @@ abstract class BaseChunkBufferProvider : PcmBufferProvider {
     override suspend fun getBuffer(size: Int): ShortsInfo {
         val buffer = ShortArray(size)
         var bufferOffset = 0
+        val sampleTime = sampleTime
         while (bufferOffset < size) {
             val chunk = getAvailableChunk() ?: break
             val remaining = size - bufferOffset
@@ -31,7 +32,7 @@ abstract class BaseChunkBufferProvider : PcmBufferProvider {
         return ShortsInfo(
             buffer,
             size = bufferOffset,
-            sampleTime = info.sampleTime,
+            sampleTime = sampleTime,
             flags = if (bufferOffset < size) BUFFER_FLAG_END_OF_STREAM else 0
         )
     }
@@ -39,8 +40,7 @@ abstract class BaseChunkBufferProvider : PcmBufferProvider {
     private suspend fun getAvailableChunk(): ShortsInfo? {
         currentChunk?.takeIf { it.size > 0 }?.let { return it }
         currentChunk = fetchNextRawChunk()?.also {
-            info.sampleTime = it.sampleTime
-            info.flags = it.flags
+            sampleTime = it.sampleTime
         }?.applyPreProcess()
         return currentChunk
     }
@@ -50,7 +50,6 @@ abstract class BaseChunkBufferProvider : PcmBufferProvider {
     }
 
     override fun release() {
-        currentChunk = null
         onChunkReleased()
     }
 }

@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * 使用MediaCodec将音频编码成aac格式，封装
+ * 使用MediaCodec将音频编码成aac格式
  */
 class AACMediaCodecEncoder(
     outPutPath: String,
@@ -18,7 +18,7 @@ class AACMediaCodecEncoder(
     private val bitRate: Int,
     private val scope: CoroutineScope,
 ) {
-    val sampleTime = MutableStateFlow<Long>(0)
+    val progress = MutableStateFlow<Long>(0)
     private var state = State.Init
     private val codec = MediaCodec.createEncoderByType("audio/mp4a-latm")
     private val muxer = MediaMuxer(outPutPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
@@ -49,12 +49,12 @@ class AACMediaCodecEncoder(
                 processOutputBuffer()
             }
             release()
-            sampleTime.emit(EOF)
+            progress.emit(EOF)
         }
         state = State.Running
     }
 
-    private fun processOutputBuffer() {
+    private suspend fun processOutputBuffer() {
         when (val index = codec.dequeueOutputBuffer(tempInfo, 0)) {
             MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
                 muxerTrackIndex = muxer.addTrack(codec.outputFormat)
@@ -68,6 +68,7 @@ class AACMediaCodecEncoder(
                     val outputBuffer = codec.getOutputBuffer(index)!!
                     muxer.writeSampleData(muxerTrackIndex, outputBuffer, tempInfo)
                     codec.releaseOutputBuffer(index, false)
+                    progress.emit(tempInfo.presentationTimeUs)
                 }
             }
         }
@@ -80,16 +81,14 @@ class AACMediaCodecEncoder(
         if (index < 0) return
         val buffer = codec.getInputBuffer(index)?.asShortBuffer() ?: return
         val pcmShortInfo = processor.getBuffer(buffer.remaining())
-        buffer.put(pcmShortInfo.shorts)
+        buffer.put(pcmShortInfo.shorts, pcmShortInfo.offset, pcmShortInfo.size)
         codec.queueInputBuffer(index, 0, buffer.position() * 2, pcmShortInfo.sampleTime, pcmShortInfo.flags)
         if (pcmShortInfo.flags == MediaCodec.BUFFER_FLAG_END_OF_STREAM) {
             isEndOfStreamReached = true
-        } else {
-            sampleTime.emit(pcmShortInfo.sampleTime)
         }
     }
 
-    fun release() {
+    private fun release() {
         if (state != State.Running) return
         provider?.release()
         codec.stop()
