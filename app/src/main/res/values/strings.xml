@@ -12,4 +12,10 @@
         2.通过分贝值展示一个动画\n
         3.通过MediaCodec编码成aac或者是Lame编码成mp3
     </string>
+    <string name="view_demo">View Demo</string>
+    <string name="view_demo_info">自定义view的demo合集, 包括:\n
+    1. 通过测量与布局 实现子view居中展示
+    2. 通过触摸事件分发实现 MyViewPage
+    3. 嵌套滑动
+    4. 通过自定义view: 绘制鱼</string>
 </resources>

@@ -16,8 +16,11 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.marginBottom
+import androidx.core.view.marginEnd
+import androidx.core.view.marginStart
 import androidx.core.view.marginTop
 import com.example.common.BaseApp
+import kotlin.random.Random
 
 fun getString(@StringRes id: Int): String {
     val context = BaseApp.instance
@@ -33,6 +36,8 @@ fun getDrawable(@DrawableRes id: Int): Drawable {
     val context = BaseApp.instance
     return ContextCompat.getDrawable(context, id)!!
 }
+
+fun getScreenWidth() = BaseApp.instance.resources.displayMetrics.widthPixels
 
 
 fun <T : Activity> Context.startActivity(tClass: Class<T>) {
@@ -111,6 +116,22 @@ val View?.heightUsed: Int
         return 0
     }
 
+val View?.widthUsed: Int
+    get() {
+        this ?: return 0
+        if (parent != null && visibility != View.GONE) {
+            return marginStart + marginEnd + measuredWidth
+        }
+        return 0
+    }
+
+val View.paddingHorizon
+    get() = paddingStart + paddingEnd
+
+val View.paddingVertical
+    get() = paddingTop + paddingBottom
+
+
 const val wrapContent = ViewGroup.LayoutParams.WRAP_CONTENT
 const val matchParent = ViewGroup.LayoutParams.MATCH_PARENT
 
@@ -123,4 +144,19 @@ fun Context.checkPermission(permission : String): Boolean {
 
 fun toast(msg: String) {
     Toast.makeText(BaseApp.instance, msg, Toast.LENGTH_SHORT).show()
+}
+
+fun generateRandomString(
+    minLength: Int = 8,
+    maxLength: Int = 16,
+    characters: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9') + ' '
+): String {
+    var length = Random.nextInt(minLength, maxLength + 1)
+    if (length > maxLength / 2) {
+        length = Random.nextInt(minLength, maxLength + 1)
+    }
+    return (1..length)
+        .map { Random.nextInt(characters.size) }
+        .map(characters::get)
+        .joinToString("")
 }

@@ -28,6 +28,7 @@ import com.example.common.util.startActivity
 import com.example.opengl.SELECT_OPENGL_DEMO
 import com.example.record.RecordActivity
 import com.example.syncplayer.SyncPlayerActivity
+import com.example.view.SELECT_VIEW_DEMO
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
@@ -40,6 +41,9 @@ class MainActivity : ComponentActivity() {
         },
         ButtonItemBean(R.string.recorder_demo, R.string.recorder_demo_info) { _, _ ->
             startActivity(RecordActivity::class.java)
+        },
+        ButtonItemBean(R.string.recorder_demo, R.string.recorder_demo_info) { _, _ ->
+            viewModel.showBottomSheet(SELECT_VIEW_DEMO)
         }
     )
 

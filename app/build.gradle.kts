@@ -53,6 +53,7 @@ dependencies {
     implementation(project(":syncplayer"))
     implementation(project(":record"))
     implementation(project(":common"))
+    implementation(project(":view"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
