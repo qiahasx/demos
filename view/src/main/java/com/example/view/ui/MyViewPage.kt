@@ -1,20 +1,18 @@
-package com.example.view
+package com.example.view.ui
 
 import android.content.Context
-import android.util.AttributeSet
 import android.view.*
 import android.widget.OverScroller
 import androidx.core.view.children
+import com.example.common.util.debug
 import java.lang.Integer.min
 import kotlin.math.abs
 
-class MyViewPage @JvmOverloads constructor(context: Context, attributeSet: AttributeSet? = null) :
-    ViewGroup(context, attributeSet) {
+class MyViewPage(context: Context) : ViewGroup(context) {
     private var downY: Float = 0f
     private var downX: Float = 0f
     private var movedY: Float = 0f
     private var scrollY: Int = 0
-    private var views: ArrayList<View> = ArrayList()
     private val overScroller by lazy { OverScroller(context) }
     private val velocityTracker by lazy { VelocityTracker.obtain() }
     private val viewConfiguration = ViewConfiguration.get(context)
@@ -35,7 +33,6 @@ class MyViewPage @JvmOverloads constructor(context: Context, attributeSet: Attri
         for (child in children) {
             child.layout(left, top, right, top + height)
             top += height
-            views.add(child)
         }
     }
 
@@ -50,7 +47,6 @@ class MyViewPage @JvmOverloads constructor(context: Context, attributeSet: Attri
                 downX = event.x
                 downY = event.y
                 scrollY = 0
-                parent.requestDisallowInterceptTouchEvent(true)
             }
             MotionEvent.ACTION_MOVE -> {
                 val dy = (event.y - downY).toInt()
@@ -79,16 +75,13 @@ class MyViewPage @JvmOverloads constructor(context: Context, attributeSet: Attri
         return true
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        return super.dispatchTouchEvent(ev)
-    }
-
     private fun offsetChildrenVertical(dy: Int) {
         val moveY = if (dy > 0) {
-            min(dy, abs(views[0].top))
+            min(dy, abs(getChildAt(0).top))
         } else {
-            if (views[views.size - 1].bottom + dy > height) dy else {
-                -(views[views.size - 1].bottom - height)
+            val bottom = getChildAt(childCount - 1).bottom
+            if (bottom + dy > height) dy else {
+                -(bottom - height)
             }
         }
         for (child in children) {
@@ -97,43 +90,51 @@ class MyViewPage @JvmOverloads constructor(context: Context, attributeSet: Attri
     }
 
     private fun toScroll() {
-        // 算
         velocityTracker.computeCurrentVelocity(1000, maxV.toFloat())
-        var distance = 0
-        for ((i, child) in children.withIndex()) {
-            if (child.top > -height) {
-                val v = velocityTracker.yVelocity
-                if (abs(v) < minV) {
-                    if (abs(child.top) > height / 2) {
-                        distance = child.bottom
-                    } else {
-                        distance = child.top
-                    }
-                } else {
-                    if (v < 0 && i != childCount - 1) {
-                        distance = child.bottom
-                    } else if (v > 0) {
-                        distance = child.top
-                    }
-                }
-                break
-            }
-        }
+        val targetChild = findTargetChild() ?: return
+        val distance = calculateScrollDistance(targetChild)
         overScroller.startScroll(0, 0, 0, -distance)
         postInvalidateOnAnimation()
     }
 
+    private fun findTargetChild(): View? = children.firstOrNull {
+        it.top > -height
+    }
+
+    private fun calculateScrollDistance(child: View): Int {
+        val velocity = velocityTracker.yVelocity
+        debug("$velocity")
+        return when {
+            isLowSpeedScroll(velocity) -> handleLowSpeedScroll(child)
+            isUpSwipe(velocity) -> handleUpSwipe(child)
+            isDownSwipe(velocity) -> handleDownSwipe(child)
+            else -> 0
+        }
+    }
+
+    private fun isLowSpeedScroll(v: Float) = abs(v) < minV
+    private fun isUpSwipe(v: Float) = v < 0
+    private fun isDownSwipe(v: Float) = v > 0
+
+    private fun handleLowSpeedScroll(child: View) =
+        if (abs(child.top) > height / 2) child.bottom else child.top
+
+    private fun handleUpSwipe(child: View) =
+        if (children.indexOf(child) != childCount - 1) child.bottom else 0
+
+    private fun handleDownSwipe(child: View) = child.top
+
     override fun computeScroll() {
         if (overScroller.computeScrollOffset()) {
-            for (child in children) {
-                child.offsetTopAndBottom(overScroller.currY - scrollY)
-            }
+            offsetChildrenVertical(overScroller.currY - scrollY)
             scrollY = overScroller.currY
             postInvalidateOnAnimation()
         }
     }
 
-    override fun generateDefaultLayoutParams(): LayoutParams {
-        return LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    override fun addView(child: View?) {
+        require(child?.layoutParams?.width == LayoutParams.MATCH_PARENT) { "child layoutParams.width must be MATCH_PARENT" }
+        require(child?.layoutParams?.height == LayoutParams.MATCH_PARENT) { "child layoutParams.height must be MATCH_PARENT" }
+        super.addView(child)
     }
 }

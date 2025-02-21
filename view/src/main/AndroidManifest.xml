@@ -3,5 +3,6 @@
 
     <application>
         <activity android:name=".CenterActivity" />
+        <activity android:name=".ViewPageActivity" />
     </application>
 </manifest>

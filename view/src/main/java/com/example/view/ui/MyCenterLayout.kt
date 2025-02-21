@@ -1,4 +1,4 @@
-package com.example.view
+package com.example.view.ui
 
 import android.content.Context
 import android.view.View

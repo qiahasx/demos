@@ -49,9 +49,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":opengl"))
-    implementation(project(":syncplayer"))
-    implementation(project(":record"))
+//    implementation(project(":opengl"))
+//    implementation(project(":syncplayer"))
+//    implementation(project(":record"))
     implementation(project(":common"))
     implementation(project(":view"))
     implementation(libs.androidx.appcompat)

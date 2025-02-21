@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.core.view.doOnLayout
 import com.example.common.util.*
+import com.example.view.ui.MyCenterLayout
 
 class CenterActivity : ComponentActivity() {
     private var cnt = 0
