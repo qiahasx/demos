@@ -14,4 +14,11 @@
     <string name="enable_automatic_gain">启用自动增益控制</string>
     <string name="enable_automatic_echo">启用声学回声消除器</string>
     <string name="channels">通道数</string>
+    <string name="recorder_demo">Recorder Demo</string>
+    <string name="recorder_demo_info">
+        对AudioRecorder的封装 实现:\n
+        1.获得原始pcm数据后，计算出分贝参考值\n
+        2.通过分贝值展示一个动画\n
+        3.通过MediaCodec编码成aac或者是Lame编码成mp3
+    </string>
 </resources>

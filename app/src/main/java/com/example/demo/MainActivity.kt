@@ -10,7 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -19,29 +24,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.common.MainViewModel
+import com.example.common.SelectItemService
 import com.example.common.ui.ButtonItem
 import com.example.common.ui.ButtonItemBean
 import com.example.common.ui.TextInfoDialog
 import com.example.common.ui.theme.AppTheme
 import com.example.common.util.LocalMainViewModel
-import com.example.view.SELECT_VIEW_DEMO
+import java.util.ServiceLoader
 
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
-    private val demos = listOf(
-//        ButtonItemBean(R.string.opengl_demo, R.string.opengl_demo_info) { _, _ ->
-//            viewModel.showBottomSheet(SELECT_OPENGL_DEMO)
-//        },
-//        ButtonItemBean(com.example.syncplayer.R.string.sync_player, com.example.syncplayer.R.string.sync_player_info) { _, _ ->
-//            startActivity(SyncPlayerActivity::class.java)
-//        },
-//        ButtonItemBean(R.string.recorder_demo, R.string.recorder_demo_info) { _, _ ->
-//            startActivity(RecordActivity::class.java)
-//        },
-        ButtonItemBean(R.string.recorder_demo, R.string.recorder_demo_info) { _, _ ->
-            viewModel.showBottomSheet(SELECT_VIEW_DEMO)
+    private val demos = kotlin.run {
+        ServiceLoader.load(SelectItemService::class.java).map {
+            it.getSelectItem()
         }
-    )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
