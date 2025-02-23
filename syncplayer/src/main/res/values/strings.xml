@@ -22,6 +22,7 @@
     It also allows adjusting the volume of each audio track.\n
     It supports playing audio files with different channel counts or sample rates, and will automatically resample to the highest values by default.\n
     Click on an audio file on the home page to view its details and resample it to a specified format.
-</string>
+    https://juejin.cn/post/7440765971680575542#!
+    </string>
     <string name="guide_title">Welcome to AudioSyncPlayer</string>
 </resources>

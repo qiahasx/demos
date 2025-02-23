@@ -20,5 +20,6 @@
         1.获得原始pcm数据后，计算出分贝参考值\n
         2.通过分贝值展示一个动画\n
         3.通过MediaCodec编码成aac或者是Lame编码成mp3
+        https://juejin.cn/post/7473167460263624716#!
     </string>
 </resources>

@@ -3,7 +3,10 @@
     <string name="view_demo">View Demo</string>
     <string name="view_demo_info">自定义view的demo合集, 包括:\n
     1. 通过测量与布局 实现子view居中展示
+        https://b7h8cgk1ca.feishu.cn/docx/YSLid7vsaovRJcxtw3KcG2Z0nOe?from=from_copylink#!\n
     2. 通过触摸事件分发实现 MyViewPage
+       https://b7h8cgk1ca.feishu.cn/docx/YSLid7vsaovRJcxtw3KcG2Z0nOe?from=from_copylink#!\n
     3. 嵌套滑动
+       https://b7h8cgk1ca.feishu.cn/docx/YSLid7vsaovRJcxtw3KcG2Z0nOe?from=from_copylink#!\n
     4. 通过自定义view: 绘制鱼</string>
 </resources>

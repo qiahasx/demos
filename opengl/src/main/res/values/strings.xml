@@ -33,11 +33,12 @@
     <string name="transition_radial_info">中央展开</string>
     <string name="transition_fade_info">渐隐</string>
     <string name="transition_rotating_info">切分方块旋转</string>
-    <string name="transition_blur_info">切分方块旋转 \n 出自: https://www.shadertoy.com/view/Ml3XR2</string>
-    <string name="transition_burn_info">燃烧 \n 出自: https://www.shadertoy.com/view/ltV3RG</string>
+    <string name="transition_blur_info">切分方块旋转 \n 出自: https://www.shadertoy.com/view/Ml3XR2#!</string>
+    <string name="transition_burn_info">燃烧 \n 出自: https://www.shadertoy.com/view/ltV3RG#!</string>
     <string name="opengl_demo">OPENGL DEMO</string>
     <string name="opengl_demo_info">学习opengl时候写的demo, 包括:\n
     1. 绘制可以简单根据用户触摸旋转的彩色立方体\n
     2. 绘制简单图元\n
-    3. 绘制不同的转场动画</string>
+    3. 绘制不同的转场动画
+    https://juejin.cn/post/7472770757073649700#!</string>
 </resources>
