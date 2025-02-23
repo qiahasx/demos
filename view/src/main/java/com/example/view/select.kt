@@ -9,5 +9,8 @@ val SELECT_VIEW_DEMO = listOf(
     },
     ButtonItemBean(com.example.common.R.string.confirm, com.example.common.R.string.confirm) { context, _ ->
         context.startActivity(ViewPageActivity::class.java)
+    },
+    ButtonItemBean(com.example.common.R.string.confirm, com.example.common.R.string.confirm) { context, _ ->
+        context.startActivity(NestScrollActivity::class.java)
     }
 )

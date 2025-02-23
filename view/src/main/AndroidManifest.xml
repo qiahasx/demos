@@ -4,5 +4,6 @@
     <application>
         <activity android:name=".CenterActivity" />
         <activity android:name=".ViewPageActivity" />
+        <activity android:name=".NestScrollActivity" />
     </application>
 </manifest>
