@@ -8,6 +8,7 @@ import com.example.common.util.generateRandomString
 import com.example.common.util.marginLayoutParams
 import com.example.common.util.matchParent
 import com.example.common.util.setFontWeight
+import com.example.common.util.toast
 import com.example.view.ui.MyViewPage
 
 class ViewPageActivity : ComponentActivity() {
@@ -28,6 +29,9 @@ class ViewPageActivity : ComponentActivity() {
         textSize = 24f
         setFontWeight(700)
         setBackgroundColor(getBackgroundColor(cnt++))
+        setOnClickListener {
+            toast(text.toString())
+        }
     }
 
     private fun getBackgroundColor(position: Int) = when (position % 3) {
