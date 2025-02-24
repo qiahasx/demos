@@ -48,6 +48,7 @@ android {
 dependencies {
     implementation(project(":common"))
     implementation(project(":media"))
+    implementation(libs.androidx.startup.runtime)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

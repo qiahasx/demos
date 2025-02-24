@@ -17,6 +17,7 @@ class JniReSampler(
 
     init {
         reSamplerPointer = initReSampler(oldSampleRate, newSampleRate, channelCount)
+        require(reSamplerPointer != 0L) { "init resample fail"}
     }
 
     override fun reSampler(pcmData: ShortsInfo): ShortsInfo {

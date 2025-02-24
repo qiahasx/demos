@@ -7,7 +7,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         context = this
-        MMKV.initialize(this)
     }
 
     companion object {

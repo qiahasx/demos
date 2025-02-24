@@ -49,8 +49,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":opengl"))
     implementation(project(":syncplayer"))
+    implementation(project(":opengl"))
     implementation(project(":record"))
     implementation(project(":common"))
     implementation(project(":view"))

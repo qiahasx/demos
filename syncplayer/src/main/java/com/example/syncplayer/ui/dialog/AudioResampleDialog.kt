@@ -34,7 +34,7 @@ import com.example.syncplayer.model.AudioItem
 
 class AudioInfoDialog(
     val audioItem: AudioItem,
-    val isCancel: Boolean = true,
+    val isCancel: Boolean = false,
     val onDismissRequest: (AudioInfoDialog) -> Unit = {},
 ) : DialogController() {
     @Composable

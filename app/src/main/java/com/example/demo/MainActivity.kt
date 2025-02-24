@@ -111,8 +111,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-//    init {
-//        System.loadLibrary("opengl")
-//    }
 }

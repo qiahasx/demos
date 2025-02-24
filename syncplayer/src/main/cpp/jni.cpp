@@ -86,7 +86,7 @@ JNIEXPORT jlong JNICALL Java_com_example_syncplayer_audio_resample_JniReSampler_
         jint channels
 ) {
     int error;
-    auto srcState = src_new(SRC_LINEAR, channels, &error);
+    auto srcState = src_new(SRC_SINC_BEST_QUALITY, channels, &error);
     if (error) {
         return 0;
     }

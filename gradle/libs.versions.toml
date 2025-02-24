@@ -10,12 +10,14 @@ composeBom = "2024.04.01"
 mmkvVersion = "2.0.2"
 lifecycleRuntimeKtx = "2.6.1"
 navigationCompose = "2.8.5"
+startupRuntime = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startupRuntime" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
