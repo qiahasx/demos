@@ -1,0 +1,25 @@
+<resources>
+    <string name="use_JNI_resample">使用 JNI 重采样</string>
+    <string name="pick_file">选择文件</string>
+    <string name="start">开始</string>
+    <string name="setting">设置</string>
+    <string name="confirm">确认</string>
+    <string name="play_track">播放音轨</string>
+    <string name="jni_resample_title">是否使用 libsamplerate</string>
+    <string name="jni_resample_content">
+        在播放对采样率进行重采样时，是否使用 libsndfile/libsamplerate 进行重采样。\n
+        这是一个相对轻量的、高速的、高质量的、由 C 代码编写的库。\n
+        因为需要 JNI 调用，而且算法更复杂，所以可能会有更大的性能开销。\n
+        如果不使用 JNI，那么会使用由 Kotlin 编写的线性插值重采样算法。\n
+        这个算法的性能非常好，但效果差强人意。\n\n
+        注：libsamplerate 可能会引入杂音，原因未知。
+    </string>
+    <string name="file_empty">请先选择音频文件</string>
+    <string name="sync_player_info">AudioSyncPlayer是一个音频同步播放器\n
+                   它可以播放多个音频文件，并且可以同步它们的播放进度\n
+                   同时允许调整每个音频的音量。\n
+                   支持播放声道数或者采样率不同的音频文件，播放时默认会重采样到最高值。\n
+                   点击首页音频文件可以查看音频信息并且可以重采样到指定格式
+                    https://juejin.cn/post/7440765971680575542#!</string>
+    <string name="guide_title">欢迎来到AudioSyncPlayer</string>
+</resources>

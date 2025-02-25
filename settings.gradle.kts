@@ -19,5 +19,12 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "openGl"
+rootProject.name = "demo"
+include(":opengl")
 include(":app")
+include(":common")
+include(":syncplayer")
+include(":record")
+include(":lame")
+include(":media")
+include(":view")
