@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name=".StandardActivity"
+            android:launchMode="standard" />
+        <activity
+            android:name=".SingleInstanceActivity"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name=".SingleTaskActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".SingleTopActivity"
+            android:launchMode="singleTop" />
+    </application>
+</manifest>

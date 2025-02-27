@@ -20,8 +20,8 @@ import com.example.common.util.getString
 
 @Composable
 fun ButtonItem(
-    @StringRes title: Int,
-    @StringRes message: Int,
+    title: String = "",
+    message: String = "",
     onClick: (Context, MainViewModel) -> Unit,
 ) {
     val mainViewModel = LocalMainViewModel.current
@@ -34,11 +34,20 @@ fun ButtonItem(
             .padding(16.dp)
             .height(44.dp)
     ) {
-        Text(getString(title))
+        Text(title)
         IconButton({
-            mainViewModel.showTextInfo(getString(title), getString(message))
+            mainViewModel.showTextInfo(title, message)
         }) { Icon(Icons.Default.Info, "") }
     }
+}
+
+@Composable
+fun ButtonItem(
+    @StringRes title: Int,
+    @StringRes message: Int,
+    onClick: (Context, MainViewModel) -> Unit,
+) {
+    ButtonItem(getString(title), getString(message), onClick)
 }
 
 @Composable
