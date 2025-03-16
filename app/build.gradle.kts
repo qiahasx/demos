@@ -49,12 +49,13 @@ android {
 }
 
 dependencies {
-//    implementation(project(":syncplayer"))
-//    implementation(project(":opengl"))
-//    implementation(project(":record"))
-    implementation(project(":common"))
+    implementation(project(":syncplayer"))
+    implementation(project(":opengl"))
+    implementation(project(":record"))
     implementation(project(":launch"))
-//    implementation(project(":view"))
+    implementation(project(":view"))
+    implementation(project(":demoList"))
+    implementation(project(":common"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

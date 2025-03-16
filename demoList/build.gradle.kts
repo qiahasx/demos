@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.lame"
+    namespace = "com.example.demolist"
     compileSdk = 34
 
     defaultConfig {
@@ -12,21 +12,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        ndk {
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
-        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
         }
     }
     compileOptions {
@@ -36,8 +27,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    ndkVersion = "27.0.12077973"
 }
 
 dependencies {
+    implementation(project(":common"))
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
